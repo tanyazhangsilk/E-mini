@@ -1,0 +1,22 @@
+<navigation-bar title="" back="{{false}}" color="white" background="transparent"></navigation-bar>
+<view class="scan-page">
+  <view class="scan-header">
+    <text class="scan-title">扫码充电</text>
+    <text class="scan-subtitle">扫描充电桩二维码或输入桩号</text>
+    <view class="scan-area">
+      <view class="scan-frame">
+        <view class="scan-corners"></view>
+      </view>
+    </view>
+    <text class="scan-note">(扫码功能需在真机上使用)</text>
+  </view>
+
+  <view class="manual-section">
+    <text class="manual-title">手动输入桩号</text>
+    <view class="manual-row">
+      <input class="manual-input" placeholder="例如: NS-A01" value="{{pileNo}}" bindinput="onPileInput" />
+      <view class="search-btn" bindtap="onSearchPile">查找</view>
+    </view>
+  </view>
+</view>
+<custom-tab-bar />

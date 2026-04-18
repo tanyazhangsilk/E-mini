@@ -1,0 +1,134 @@
+page {
+  background: #f6f6f6;
+  min-height: 100vh;
+}
+
+.stations-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-top: calc(var(--status-bar-height, 0) + 88rpx);
+  padding-bottom: 120rpx;
+}
+
+.page-header {
+  padding: 32rpx 32rpx 24rpx;
+  background: #fff;
+}
+
+.page-title {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 24rpx 32rpx;
+  background: #fff;
+}
+
+.search-input {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #f5f5f5;
+  border-radius: 40rpx;
+  padding: 20rpx 28rpx;
+}
+
+.search-icon {
+  font-size: 32rpx;
+  margin-right: 16rpx;
+}
+
+.search-input input {
+  flex: 1;
+  font-size: 28rpx;
+}
+
+.filter-btn {
+  padding: 16rpx 32rpx;
+  background: #f5f5f5;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.filter-btn.active {
+  background: #06b6d4;
+  color: #fff;
+}
+
+.station-list {
+  flex: 1;
+  padding: 24rpx 32rpx;
+}
+
+.station-card {
+  display: flex;
+  align-items: center;
+  padding: 32rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.04);
+}
+
+.station-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  margin-right: 24rpx;
+}
+
+.station-icon.high {
+  background: #e0f7fa;
+}
+
+.station-icon.low {
+  background: #fff3e0;
+}
+
+.station-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.station-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.station-address {
+  font-size: 26rpx;
+  color: #999;
+  margin-bottom: 4rpx;
+}
+
+.station-operator {
+  font-size: 24rpx;
+  color: #bbb;
+}
+
+.station-available {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.station-available.high {
+  color: #06b6d4;
+}
+
+.station-available.low {
+  color: #ff9800;
+}

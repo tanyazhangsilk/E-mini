@@ -1,0 +1,26 @@
+<navigation-bar title="" back="{{false}}" color="black" background="#fff"></navigation-bar>
+<view class="stations-page">
+  <view class="page-header">
+    <text class="page-title">附近充电站</text>
+  </view>
+  <view class="search-bar">
+    <view class="search-input">
+      <text class="search-icon">🔍</text>
+      <input placeholder="搜索电站名称、地址" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+    </view>
+    <view class="filter-btn {{filterIdle ? 'active' : ''}}" bindtap="toggleFilter">空闲</view>
+  </view>
+
+  <scroll-view class="station-list" scroll-y type="list">
+    <view class="station-card" wx:for="{{displayStations}}" wx:key="id" bindtap="onStationTap" data-id="{{item.id}}">
+      <view class="station-icon {{item.available / item.total >= 0.5 ? 'high' : 'low'}}">⚡</view>
+      <view class="station-info">
+        <text class="station-name">{{item.name}}</text>
+        <text class="station-address">📍 {{item.address}}</text>
+        <text class="station-operator">{{item.operator}}</text>
+      </view>
+      <text class="station-available {{item.available / item.total >= 0.5 ? 'high' : 'low'}}">{{item.available}}/{{item.total}}空闲</text>
+    </view>
+  </scroll-view>
+</view>
+<custom-tab-bar />
