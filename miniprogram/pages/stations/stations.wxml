@@ -1,25 +1,46 @@
 <navigation-bar title="" back="{{false}}" color="black" background="#fff"></navigation-bar>
 <view class="stations-page">
   <view class="page-header">
-    <text class="page-title">附近充电站</text>
+    <text class="page-title">Nearby Stations</text>
   </view>
   <view class="search-bar">
     <view class="search-input">
-      <text class="search-icon">🔍</text>
-      <input placeholder="搜索电站名称、地址" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+      <text class="search-icon">S</text>
+      <input
+        placeholder="Search station or address"
+        value="{{keyword}}"
+        bindinput="onSearchInput"
+        bindconfirm="onSearch"
+      />
     </view>
-    <view class="filter-btn {{filterIdle ? 'active' : ''}}" bindtap="toggleFilter">空闲</view>
+    <view class="filter-btn {{filterIdle ? 'active' : ''}}" bindtap="toggleFilter">Idle</view>
   </view>
 
+  <view class="page-tip loading" wx:if="{{loading}}">Loading live stations...</view>
+  <view class="page-tip error" wx:if="{{!loading && errorMessage}}">{{errorMessage}}</view>
+
   <scroll-view class="station-list" scroll-y type="list">
-    <view class="station-card" wx:for="{{displayStations}}" wx:key="id" bindtap="onStationTap" data-id="{{item.id}}">
-      <view class="station-icon {{item.available / item.total >= 0.5 ? 'high' : 'low'}}">⚡</view>
+    <view
+      class="station-card"
+      wx:for="{{displayStations}}"
+      wx:key="id"
+      bindtap="onStationTap"
+      data-id="{{item.id}}"
+    >
+      <view class="station-icon {{item.available / item.total >= 0.5 ? 'high' : 'low'}}">C</view>
       <view class="station-info">
         <text class="station-name">{{item.name}}</text>
-        <text class="station-address">📍 {{item.address}}</text>
+        <text class="station-address">ADDR {{item.address}}</text>
         <text class="station-operator">{{item.operator}}</text>
       </view>
-      <text class="station-available {{item.available / item.total >= 0.5 ? 'high' : 'low'}}">{{item.available}}/{{item.total}}空闲</text>
+      <text class="station-available {{item.available / item.total >= 0.5 ? 'high' : 'low'}}">
+        {{item.available}}/{{item.total}} idle
+      </text>
+    </view>
+
+    <view class="empty-state" wx:if="{{!loading && empty}}">
+      <text class="empty-title">No stations to display</text>
+      <text class="empty-desc">{{usingMockData ? 'Live API unavailable, demo mode is active.' : 'Try another keyword or refresh later.'}}</text>
     </view>
   </scroll-view>
 </view>
