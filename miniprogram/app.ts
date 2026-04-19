@@ -1,4 +1,4 @@
-import { initializeDemoState } from './services/mock'
+import { initializeAppState } from './services/mock'
 import { getStoredUser, getStoredBalance } from './utils/storage'
 
 App<IAppOption>({
@@ -7,7 +7,7 @@ App<IAppOption>({
     balance: 0,
   },
   onLaunch() {
-    initializeDemoState()
+    initializeAppState()
     const user = getStoredUser()
     const balance = getStoredBalance()
     this.globalData.echargeUser = user

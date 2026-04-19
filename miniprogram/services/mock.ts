@@ -107,7 +107,7 @@ const STATIONS: StationItem[] = [
     available: 8,
     total: 12,
     distance: '1.2km',
-    statusText: '空闲较多',
+    statusText: '空闲充足',
     businessHours: '00:00 - 24:00',
     parkingTips: '停车 2 小时内免费，支持新能源专属车位',
     serviceTips: '便利店 / 洗手间 / 休息区',
@@ -129,7 +129,7 @@ const STATIONS: StationItem[] = [
     available: 3,
     total: 8,
     distance: '2.6km',
-    statusText: '较忙',
+    statusText: '部分繁忙',
     businessHours: '07:00 - 23:00',
     parkingTips: '商场停车高峰期较紧张，建议错峰前往',
     serviceTips: '商场配套 / 咖啡店 / 导航指引',
@@ -139,7 +139,7 @@ const STATIONS: StationItem[] = [
     piles: [
       { id: 'HQ-11', label: 'C1 号桩', power: '180kW', status: 'busy', statusText: '充电中' },
       { id: 'HQ-12', label: 'C2 号桩', power: '180kW', status: 'idle', statusText: '空闲' },
-      { id: 'HQ-13', label: 'D1 号桩', power: '90kW', status: 'fault', statusText: '维护中' },
+      { id: 'HQ-13', label: 'D1 号桩', power: '90kW', status: 'fault', statusText: '设备维护' },
       { id: 'HQ-14', label: 'D2 号桩', power: '90kW', status: 'idle', statusText: '空闲' },
     ],
   },
@@ -151,7 +151,7 @@ const STATIONS: StationItem[] = [
     available: 5,
     total: 10,
     distance: '3.8km',
-    statusText: '空闲适中',
+    statusText: '空闲充足',
     businessHours: '06:30 - 23:30',
     parkingTips: '支持网约车优先排队，停车指引清晰',
     serviceTips: '候车区 / 自动售货机 / 站内客服',
@@ -173,13 +173,13 @@ const STATIONS: StationItem[] = [
     available: 2,
     total: 6,
     distance: '4.5km',
-    statusText: '较忙',
+    statusText: '高峰排队',
     businessHours: '00:00 - 24:00',
     parkingTips: '工作日午间高峰排队较多',
     serviceTips: '商务配套 / 代客泊车 / 保安值守',
     priceText: '￥1.68/度，服务费 ￥0.65/度',
     score: '4.6',
-    tags: ['商务区', '高峰繁忙', '24 小时'],
+    tags: ['商务区', '高峰时段', '24 小时'],
     piles: [
       { id: 'JR-31', label: 'G1 号桩', power: '120kW', status: 'busy', statusText: '充电中' },
       { id: 'JR-32', label: 'G2 号桩', power: '120kW', status: 'busy', statusText: '充电中' },
@@ -193,13 +193,13 @@ const PROMOTIONS: PromotionCard[] = [
   {
     id: 'promo-01',
     title: '新用户首充立减 12 元',
-    desc: '完成首笔钱包充值后自动发放，适用于合作快充站点。',
+    desc: '完成首笔钱包充值后自动到账，适用于合作快充站点。',
     tag: '新人福利',
   },
   {
     id: 'promo-02',
     title: '周末夜间服务费 8 折',
-    desc: '每周五至周日 20:00 后生效，适合论文展示优惠活动场景。',
+    desc: '每周五至周日 20:00 后生效，夜间充电更省心。',
     tag: '限时优惠',
   },
 ]
@@ -211,7 +211,7 @@ const DEFAULT_WALLET_RECORDS: WalletRecord[] = [
     time: '2026-04-18 20:15',
     amountText: '+100.00',
     type: 'income',
-    channel: '微信支付（演示）',
+    channel: '微信支付',
   },
   {
     id: 'wallet-002',
@@ -280,7 +280,7 @@ const DEFAULT_ORDERS: OrderItem[] = [
     amountText: '12.60',
     amountValue: 12.6,
     status: 'abnormal',
-    statusText: '异常结束',
+    statusText: '异常中断',
     canInvoice: false,
   },
 ]
@@ -291,7 +291,7 @@ const DEFAULT_INVOICES: InvoiceRecord[] = [
     orderId: 'order-001',
     orderNo: 'EC202604180001',
     title: '成都智行科技有限公司',
-    email: 'finance@echarge-demo.com',
+    email: 'finance@echarge.com',
     amountText: '46.80',
     status: 'issued',
     statusText: '已开票',
@@ -304,7 +304,7 @@ const DEFAULT_INVOICES: InvoiceRecord[] = [
     orderId: 'order-002',
     orderNo: 'EC202604170001',
     title: '个人',
-    email: 'demo-user@foxmail.com',
+    email: 'user@foxmail.com',
     amountText: '28.40',
     status: 'pending',
     statusText: '待处理',
@@ -379,12 +379,12 @@ function buildId(prefix: string) {
   return `${prefix}-${Date.now()}`
 }
 
-export function initializeDemoState() {
+export function initializeAppState() {
   if (!hasStorageKey(USERS_KEY)) {
     wx.setStorageSync(USERS_KEY, {
-      'demo@echarge.com': {
-        nickname: '演示用户',
-        email: 'demo@echarge.com',
+      'user@echarge.com': {
+        nickname: '车主用户',
+        email: 'user@echarge.com',
         password: '123456',
       },
     })
@@ -480,7 +480,7 @@ export function rechargeWallet(amount: number) {
     time: formatDateTime(new Date()),
     amountText: `+${formatAmount(amount)}`,
     type: 'income',
-    channel: '微信支付（演示）',
+    channel: '微信支付',
   })
   setStorageData(WALLET_RECORDS_KEY, records)
 

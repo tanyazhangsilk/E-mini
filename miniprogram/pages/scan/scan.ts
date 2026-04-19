@@ -40,7 +40,7 @@ Page({
     this.startCharging(pileNo)
   },
 
-  onDemoScan() {
+  onQuickScan() {
     const pileNo = this.data.pileNo.trim() || 'TF-02'
     this.startCharging(pileNo)
   },

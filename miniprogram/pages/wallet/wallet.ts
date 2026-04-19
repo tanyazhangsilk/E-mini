@@ -31,6 +31,6 @@ Page({
 
   onRefresh() {
     this.refreshPage()
-    wx.showToast({ title: '余额与记录已刷新', icon: 'none' })
+    wx.showToast({ title: '账户信息已更新', icon: 'none' })
   },
 })

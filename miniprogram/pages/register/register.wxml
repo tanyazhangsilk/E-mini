@@ -2,7 +2,7 @@
 <view class="auth-page">
   <view class="hero-card">
     <text class="hero-title">创建用户账号</text>
-    <text class="hero-desc">完成基础信息填写后即可返回登录页进行演示登录。</text>
+    <text class="hero-desc">填写基础信息后即可登录平台，使用找站充电、钱包支付与订单服务。</text>
   </view>
 
   <view class="form-card">

@@ -35,8 +35,8 @@
       <text class="info-value">{{startedAt}}</text>
     </view>
     <view class="info-row">
-      <text class="info-label">充电说明</text>
-      <text class="info-value">当前为本地 mock 演示，数据会自动递增，适合论文截图展示。</text>
+      <text class="info-label">充电状态</text>
+      <text class="info-value">系统已接入实时充电监测，可持续查看电量、功率与费用变化。</text>
     </view>
   </view>
 

@@ -2,7 +2,7 @@ import { setStoredUser } from '../../utils/storage'
 
 const app = getApp<IAppOption>()
 
-interface DemoAccountMap {
+interface AccountMap {
   [key: string]: {
     nickname: string
     email: string
@@ -18,7 +18,7 @@ Page({
 
   onLoad() {
     this.setData({
-      account: 'demo@echarge.com',
+      account: 'user@echarge.com',
       password: '123456',
     })
   },
@@ -40,7 +40,7 @@ Page({
       return
     }
 
-    const users = (wx.getStorageSync('echarge_users') || {}) as DemoAccountMap
+    const users = (wx.getStorageSync('echarge_users') || {}) as AccountMap
     const user = users[account]
 
     if (!user || user.password !== password) {
@@ -53,13 +53,13 @@ Page({
     wx.switchTab({ url: '/pages/home/home' })
   },
 
-  onDemoLogin() {
-    const demoUser = {
-      nickname: '演示用户',
-      email: 'demo@echarge.com',
+  onQuickLogin() {
+    const defaultUser = {
+      nickname: '车主用户',
+      email: 'user@echarge.com',
     }
-    setStoredUser(demoUser)
-    app.globalData.echargeUser = demoUser
+    setStoredUser(defaultUser)
+    app.globalData.echargeUser = defaultUser
     wx.switchTab({ url: '/pages/home/home' })
   },
 

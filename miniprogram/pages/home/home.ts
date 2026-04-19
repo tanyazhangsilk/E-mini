@@ -4,15 +4,15 @@ const app = getApp<IAppOption>()
 
 Page({
   data: {
-    nickname: '演示用户',
+    nickname: '车主用户',
     balance: '0.00',
     stations: getRecommendedStations(),
     promotions: getPromotions(),
     quickActions: [
-      { id: 'scan', title: '扫码充电', desc: '快速开始充电', icon: '充', type: 'scan' },
-      { id: 'stations', title: '附近电站', desc: '查找空闲站点', icon: '站', type: 'stations' },
-      { id: 'wallet', title: '我的钱包', desc: '充值与交易记录', icon: '钱', type: 'wallet' },
-      { id: 'orders', title: '我的订单', desc: '查看充电记录', icon: '单', type: 'orders' },
+      { id: 'scan', title: '扫码充电', desc: '快速连接充电设备', icon: '充', type: 'scan' },
+      { id: 'stations', title: '附近电站', desc: '查找周边空闲站点', icon: '站', type: 'stations' },
+      { id: 'wallet', title: '我的钱包', desc: '查看余额与交易明细', icon: '钱', type: 'wallet' },
+      { id: 'orders', title: '我的订单', desc: '管理充电订单记录', icon: '单', type: 'orders' },
     ],
   },
 
@@ -27,7 +27,7 @@ Page({
   },
 
   refreshPage() {
-    const nickname = app.globalData.echargeUser?.nickname || '演示用户'
+    const nickname = app.globalData.echargeUser?.nickname || '车主用户'
     const balance = app.globalData.balance.toFixed(2)
     this.setData({
       nickname,
@@ -64,6 +64,6 @@ Page({
   },
 
   onPromotionTap() {
-    wx.showToast({ title: '优惠活动已加入演示区', icon: 'none' })
+    wx.showToast({ title: '优惠信息已更新', icon: 'none' })
   },
 })

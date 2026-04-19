@@ -7,7 +7,7 @@
         <text class="nickname">{{nickname}}</text>
         <text class="email">{{email}}</text>
       </view>
-      <view class="badge">论文演示版</view>
+      <view class="badge">账户中心</view>
     </view>
 
     <view class="stats-card">
@@ -44,7 +44,7 @@
       </view>
       <view class="menu-item" bindtap="showAbout">
         <text class="menu-left">关于平台</text>
-        <text class="menu-right">系统简介</text>
+        <text class="menu-right">服务介绍</text>
       </view>
     </view>
 

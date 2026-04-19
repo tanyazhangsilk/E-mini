@@ -1,4 +1,4 @@
-// 充电站 mock 数据
+// 充电站本地数据
 export interface ChargingStation {
   id: string
   name: string

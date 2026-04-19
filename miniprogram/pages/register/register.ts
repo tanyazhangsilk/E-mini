@@ -1,4 +1,4 @@
-interface DemoAccountMap {
+interface AccountMap {
   [key: string]: {
     nickname: string
     email: string
@@ -51,7 +51,7 @@ Page({
       return
     }
 
-    const users = (wx.getStorageSync('echarge_users') || {}) as DemoAccountMap
+    const users = (wx.getStorageSync('echarge_users') || {}) as AccountMap
     if (users[account]) {
       wx.showToast({ title: '该账号已注册', icon: 'none' })
       return

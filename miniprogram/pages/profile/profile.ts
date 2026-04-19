@@ -5,8 +5,8 @@ const app = getApp<IAppOption>()
 
 Page({
   data: {
-    nickname: '演示用户',
-    email: 'demo@echarge.com',
+    nickname: '车主用户',
+    email: 'user@echarge.com',
     balance: '0.00',
     orderCount: 0,
     invoiceCount: 0,
@@ -25,8 +25,8 @@ Page({
 
   refreshPage() {
     this.setData({
-      nickname: app.globalData.echargeUser?.nickname || '演示用户',
-      email: app.globalData.echargeUser?.email || 'demo@echarge.com',
+      nickname: app.globalData.echargeUser?.nickname || '车主用户',
+      email: app.globalData.echargeUser?.email || 'user@echarge.com',
       balance: app.globalData.balance.toFixed(2),
       orderCount: getOrders().length,
       invoiceCount: getInvoices().length,
@@ -48,7 +48,7 @@ Page({
   showCoupons() {
     wx.showModal({
       title: '优惠活动 / 优惠券',
-      content: '当前可用优惠券 3 张，首页已展示活动卡片，可用于论文截图说明用户优惠模块。',
+      content: '当前账户可用优惠券 3 张，可在充电下单与钱包支付场景中抵扣使用。',
       showCancel: false,
     })
   },
@@ -56,7 +56,7 @@ Page({
   showAbout() {
     wx.showModal({
       title: '关于平台',
-      content: 'E-Charge 聚合充电平台聚焦用户找站、扫码充电、钱包支付、订单发票等核心业务流程。',
+      content: 'E-Charge 聚焦车主找站、扫码充电、钱包支付、订单查询与发票服务等核心场景。',
       showCancel: false,
     })
   },
@@ -64,7 +64,7 @@ Page({
   onLogout() {
     wx.showModal({
       title: '退出登录',
-      content: '确认退出当前演示账号吗？',
+      content: '确认退出当前账户吗？',
       success: (res) => {
         if (!res.confirm) {
           return

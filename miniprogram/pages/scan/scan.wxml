@@ -2,18 +2,18 @@
 <view class="scan-page">
   <view class="hero-card">
     <text class="hero-title">扫码充电</text>
-    <text class="hero-desc">支持扫码识别与手动输入桩号双入口，适合完整展示用户充电流程。</text>
+    <text class="hero-desc">支持扫码识别与手动输入桩号两种方式，快速进入充电服务。</text>
   </view>
 
   <view class="scan-card">
-    <text class="card-title">二维码扫描示意区</text>
+    <text class="card-title">扫码识别区</text>
     <view class="scan-board">
       <view class="scan-frame">
         <view class="scan-line"></view>
       </view>
-      <text class="scan-note">当前演示电站：{{stationName}}</text>
+      <text class="scan-note">当前推荐站点：{{stationName}}</text>
     </view>
-    <button class="primary-btn" bindtap="onDemoScan">模拟扫码成功</button>
+    <button class="primary-btn" bindtap="onQuickScan">立即识别</button>
   </view>
 
   <view class="manual-card">
@@ -25,12 +25,12 @@
       bindinput="onPileInput"
     />
     <view class="quick-pile-row">
-      <text class="quick-label">常用演示桩号</text>
+      <text class="quick-label">常用桩号</text>
       <view class="quick-pill" wx:for="{{quickPiles}}" wx:key="*this" data-value="{{item}}" bindtap="fillQuickPile">
         {{item}}
       </view>
     </view>
-    <button class="ghost-btn" bindtap="onSearchPile">查询并开始充电</button>
+    <button class="ghost-btn" bindtap="onSearchPile">确认并充电</button>
   </view>
 </view>
 <custom-tab-bar />

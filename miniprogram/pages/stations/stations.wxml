@@ -16,7 +16,7 @@
     </view>
   </view>
 
-  <view class="result-tip">共为你匹配到 {{displayStations.length}} 个演示电站</view>
+  <view class="result-tip">当前为你筛选到 {{displayStations.length}} 个可选站点</view>
 
   <scroll-view class="station-list" scroll-y type="list">
     <view class="station-card" wx:for="{{displayStations}}" wx:key="id" data-id="{{item.id}}" bindtap="onStationTap">
@@ -36,7 +36,7 @@
 
       <view class="station-bottom">
         <text class="station-idle">空闲桩 {{item.available}} / {{item.total}}</text>
-        <text class="station-link">查看详情</text>
+        <text class="station-link">站点详情</text>
       </view>
     </view>
   </scroll-view>

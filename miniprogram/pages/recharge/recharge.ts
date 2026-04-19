@@ -34,7 +34,7 @@ Page({
     const nextBalance = rechargeWallet(inputAmount)
     app.globalData.balance = nextBalance
 
-    wx.showToast({ title: '充值成功（演示）', icon: 'success' })
+    wx.showToast({ title: '充值成功', icon: 'success' })
     setTimeout(() => {
       wx.navigateBack()
     }, 1000)

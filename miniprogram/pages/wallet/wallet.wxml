@@ -3,18 +3,18 @@
   <view class="wallet-page">
     <view class="balance-card">
       <text class="balance-title">我的钱包</text>
-      <text class="balance-subtitle">支持充值、消费展示与交易记录截图</text>
+      <text class="balance-subtitle">管理账户余额、充值记录与充电消费明细</text>
       <text class="balance-amount">￥{{balance}}</text>
       <view class="button-row">
         <view class="action-btn primary" bindtap="onRecharge">充值</view>
-        <view class="action-btn secondary" bindtap="onRefresh">刷新</view>
+        <view class="action-btn secondary" bindtap="onRefresh">更新余额</view>
       </view>
     </view>
 
     <view class="record-card">
       <view class="section-header">
         <text class="section-title">交易记录</text>
-        <text class="section-more">{{records.length}} 条演示数据</text>
+        <text class="section-more">最近 {{records.length}} 条记录</text>
       </view>
 
       <view class="record-item" wx:for="{{records}}" wx:key="id">

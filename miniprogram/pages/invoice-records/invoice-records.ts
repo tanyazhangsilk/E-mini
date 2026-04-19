@@ -14,8 +14,8 @@ Page({
   viewAttachment(e: WechatMiniprogram.CustomEvent) {
     const { name, status } = e.currentTarget.dataset as { name: string; status: string }
     wx.showModal({
-      title: '发票附件信息',
-      content: `${status}\n附件：${name}`,
+      title: '发票文件信息',
+      content: `${status}\n文件：${name}`,
       showCancel: false,
     })
   },

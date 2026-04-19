@@ -5,9 +5,9 @@
       <view class="hero-top">
         <view>
           <text class="hero-greeting">欢迎回来，{{nickname}}</text>
-          <text class="hero-desc">E-Charge 聚合充电平台为你推荐附近优质站点与快捷服务。</text>
+          <text class="hero-desc">E-Charge 为你汇聚附近优质站点、快捷充电入口与账户服务。</text>
         </view>
-        <view class="hero-badge">论文演示版</view>
+        <view class="hero-badge">车主服务</view>
       </view>
 
       <view class="balance-card">
@@ -16,16 +16,16 @@
           <text class="balance-amount">￥{{balance}}</text>
         </view>
         <view class="balance-side">
-          <text class="balance-side-title">本周优惠</text>
-          <text class="balance-side-text">夜间服务费 8 折</text>
+          <text class="balance-side-title">当前优惠</text>
+          <text class="balance-side-text">夜间服务费低至 8 折</text>
         </view>
       </view>
     </view>
 
     <view class="section-card">
       <view class="section-header">
-        <text class="section-title">核心服务入口</text>
-        <text class="section-more">用户端主功能</text>
+        <text class="section-title">聚合服务</text>
+        <text class="section-more">常用入口</text>
       </view>
 
       <view class="quick-grid">
@@ -40,7 +40,7 @@
     <view class="section-card">
       <view class="section-header">
         <text class="section-title">推荐电站</text>
-        <text class="section-more">3 个优选站点</text>
+        <text class="section-more">优选站点</text>
       </view>
 
       <view class="station-card" wx:for="{{stations}}" wx:key="id" data-id="{{item.id}}" bindtap="onStationTap">
@@ -61,8 +61,8 @@
 
     <view class="section-card">
       <view class="section-header">
-        <text class="section-title">优惠活动与优惠券</text>
-        <text class="section-more">静态演示数据</text>
+        <text class="section-title">优惠活动</text>
+        <text class="section-more">精选福利</text>
       </view>
 
       <view class="promo-card" wx:for="{{promotions}}" wx:key="id" bindtap="onPromotionTap">

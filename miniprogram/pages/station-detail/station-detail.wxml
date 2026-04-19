@@ -28,7 +28,7 @@
           <text class="meta-value">{{station.businessHours}}</text>
         </view>
         <view class="meta-item">
-          <text class="meta-label">空闲桩</text>
+          <text class="meta-label">空闲枪口</text>
           <text class="meta-value">{{station.available}} / {{station.total}}</text>
         </view>
       </view>
@@ -51,7 +51,7 @@
     </view>
 
     <view class="info-card">
-      <view class="section-title">电桩列表</view>
+      <view class="section-title">充电终端</view>
       <view class="pile-card" wx:for="{{station.piles}}" wx:key="id">
         <view>
           <text class="pile-name">{{item.label}}</text>
@@ -65,5 +65,5 @@
 
 <view class="bottom-bar" wx:if="{{station}}">
   <button class="ghost-btn" bindtap="goNavigate">导航前往</button>
-  <button class="primary-btn" bindtap="goCharge">去充电 / 扫码充电</button>
+  <button class="primary-btn" bindtap="goCharge">立即充电</button>
 </view>

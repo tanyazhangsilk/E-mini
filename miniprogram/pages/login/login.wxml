@@ -5,13 +5,13 @@
       <text class="logo-text">E</text>
     </view>
     <text class="brand-title">E-Charge 聚合充电平台</text>
-    <text class="brand-subtitle">用户登录与注册演示界面</text>
+    <text class="brand-subtitle">为车主提供找站、充电、支付与账户服务</text>
   </view>
 
   <view class="form-card">
     <view class="section-title">
       <text class="section-heading">欢迎登录</text>
-      <text class="section-desc">支持手机号或邮箱账号登录，便于论文演示与截图展示。</text>
+      <text class="section-desc">登录后即可查看附近电站、订单记录、钱包余额与发票服务。</text>
     </view>
 
     <view class="field">
@@ -36,7 +36,7 @@
     </view>
 
     <button class="primary-btn" bindtap="onLogin">登录</button>
-    <button class="ghost-btn" bindtap="onDemoLogin">演示登录</button>
+    <button class="ghost-btn" bindtap="onQuickLogin">快速体验</button>
 
     <view class="footer-line">
       <text class="footer-text">还没有账号？</text>

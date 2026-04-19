@@ -3,7 +3,7 @@
   <view class="success-card">
     <view class="success-icon">✓</view>
     <text class="success-title">本次充电已完成</text>
-    <text class="success-desc">扫码充电主链路已闭环，可直接用于论文第 5 章系统实现截图。</text>
+    <text class="success-desc">订单信息与费用明细已生成，可继续查看订单记录或返回首页。</text>
   </view>
 
   <view class="detail-card">

@@ -17,7 +17,7 @@ Page({
 
   onLoad(options: Record<string, string | undefined>) {
     const order = getOrderById(options.orderId || '')
-    const email = app.globalData.echargeUser?.email || 'demo@echarge.com'
+    const email = app.globalData.echargeUser?.email || 'user@echarge.com'
     this.setData({
       order,
       title: '个人',

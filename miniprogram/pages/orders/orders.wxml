@@ -43,7 +43,7 @@
 
     <view class="order-actions" wx:if="{{item.status === 'completed'}}">
       <view class="order-action-btn" catchtap="applyInvoice" data-id="{{item.id}}">申请发票</view>
-      <view class="order-action-link">查看详情</view>
+      <view class="order-action-link">订单详情</view>
     </view>
   </view>
 </view>

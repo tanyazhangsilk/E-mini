@@ -17,7 +17,7 @@
     </view>
 
     <view class="record-footer" catchtap="viewAttachment" data-name="{{item.attachmentName}}" data-status="{{item.statusText}}">
-      <text class="record-attachment">附件占位：{{item.attachmentName}}</text>
+      <text class="record-attachment">发票文件：{{item.attachmentName}}</text>
       <text class="record-link">查看状态</text>
     </view>
   </view>

@@ -28,7 +28,7 @@
     </view>
     <view class="field">
       <text class="field-label">备注</text>
-      <textarea class="field-textarea" value="{{note}}" bindinput="onNoteInput" placeholder="请输入备注信息"></textarea>
+      <textarea class="field-textarea" value="{{note}}" bindinput="onNoteInput" placeholder="请输入补充说明"></textarea>
     </view>
   </view>
 
