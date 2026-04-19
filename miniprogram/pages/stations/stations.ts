@@ -1,80 +1,34 @@
-import { getStationList, StationApiItem, StationListResult } from '../../api/station'
-import { STATIONS, ChargingStation } from '../../utils/data'
+import { getStations, StationItem } from '../../services/mock'
 
-function normalizeNumber(value: unknown, fallback = 0) {
-  const parsed = Number(value)
-  return Number.isFinite(parsed) ? parsed : fallback
-}
+function filterStations(stations: StationItem[], keyword: string, onlyIdle: boolean) {
+  const lowerKeyword = keyword.trim().toLowerCase()
 
-function normalizeStation(item: StationApiItem, index: number): ChargingStation {
-  const total = Math.max(
-    normalizeNumber(item.total ?? item.total_piles ?? item.totalCount, 0),
-    1
-  )
-  const available = Math.min(
-    normalizeNumber(
-      item.available ?? item.available_count ?? item.idle_piles ?? item.idleCount,
-      0
-    ),
-    total
-  )
+  return stations.filter(item => {
+    const matchedKeyword =
+      !lowerKeyword ||
+      item.name.toLowerCase().includes(lowerKeyword) ||
+      item.address.toLowerCase().includes(lowerKeyword) ||
+      item.operator.toLowerCase().includes(lowerKeyword)
 
-  return {
-    id: String(item.id ?? item.station_id ?? item.stationId ?? index + 1),
-    name: String(item.name ?? item.station_name ?? item.stationName ?? `Station ${index + 1}`),
-    address: String(item.address ?? item.location ?? item.detail_address ?? 'Address pending'),
-    operator: String(item.operator ?? item.operator_name ?? item.brand ?? item.provider ?? 'E-Charge'),
-    available,
-    total,
-  }
-}
-
-function normalizeStationList(response?: StationApiItem[] | StationListResult | null) {
-  if (Array.isArray(response)) {
-    return response.map(normalizeStation)
-  }
-
-  const list = response?.list || response?.results || response?.items || []
-  return Array.isArray(list) ? list.map(normalizeStation) : []
-}
-
-function getDisplayStations(
-  stations: ChargingStation[],
-  keyword: string,
-  filterIdle: boolean
-) {
-  let list = stations
-
-  if (keyword) {
-    const lowerKeyword = keyword.toLowerCase()
-    list = list.filter(
-      station =>
-        station.name.toLowerCase().includes(lowerKeyword) ||
-        station.address.toLowerCase().includes(lowerKeyword)
-    )
-  }
-
-  if (filterIdle) {
-    list = list.filter(station => station.available > 0)
-  }
-
-  return list
+    const matchedFilter = !onlyIdle || item.available / item.total >= 0.4
+    return matchedKeyword && matchedFilter
+  })
 }
 
 Page({
   data: {
     keyword: '',
-    filterIdle: false,
-    loading: false,
-    errorMessage: '',
-    empty: false,
-    usingMockData: false,
-    stations: STATIONS as ChargingStation[],
-    displayStations: STATIONS as ChargingStation[],
+    onlyIdle: false,
+    stations: [] as StationItem[],
+    displayStations: [] as StationItem[],
   },
 
   onLoad() {
-    this.loadStations()
+    const stations = getStations()
+    this.setData({
+      stations,
+      displayStations: stations,
+    })
   },
 
   onShow() {
@@ -86,93 +40,31 @@ Page({
     }
   },
 
-  onSearchInput(e: WechatMiniprogram.CustomEvent) {
+  onSearchInput(e: WechatMiniprogram.CustomEvent<{ value: string }>) {
     const keyword = e.detail.value
-    const displayStations = getDisplayStations(this.data.stations, keyword, this.data.filterIdle)
-
     this.setData({
       keyword,
-      displayStations,
-      empty: displayStations.length === 0,
+      displayStations: filterStations(this.data.stations, keyword, this.data.onlyIdle),
     })
-  },
-
-  onSearch() {
-    this.filterStations()
   },
 
   toggleFilter() {
-    const filterIdle = !this.data.filterIdle
-    const displayStations = getDisplayStations(this.data.stations, this.data.keyword, filterIdle)
-
+    const onlyIdle = !this.data.onlyIdle
     this.setData({
-      filterIdle,
-      displayStations,
-      empty: displayStations.length === 0,
+      onlyIdle,
+      displayStations: filterStations(this.data.stations, this.data.keyword, onlyIdle),
     })
   },
 
-  loadStations() {
+  clearKeyword() {
     this.setData({
-      loading: true,
-      errorMessage: '',
-    })
-
-    getStationList()
-      .then(response => {
-        const stations = normalizeStationList(response)
-        const displayStations = getDisplayStations(
-          stations,
-          this.data.keyword,
-          this.data.filterIdle
-        )
-
-        this.setData({
-          stations,
-          displayStations,
-          loading: false,
-          errorMessage: '',
-          empty: displayStations.length === 0,
-          usingMockData: false,
-        })
-      })
-      .catch(error => {
-        console.error('[stations] load station list failed, fallback to mock data', error)
-
-        const fallbackStations = STATIONS
-        const displayStations = getDisplayStations(
-          fallbackStations,
-          this.data.keyword,
-          this.data.filterIdle
-        )
-
-        this.setData({
-          stations: fallbackStations,
-          displayStations,
-          loading: false,
-          errorMessage: 'Load failed, showing local demo data.',
-          empty: displayStations.length === 0,
-          usingMockData: true,
-        })
-
-        wx.showToast({
-          title: 'Using demo data',
-          icon: 'none',
-        })
-      })
-  },
-
-  filterStations() {
-    const { keyword, filterIdle, stations } = this.data
-    const displayStations = getDisplayStations(stations, keyword, filterIdle)
-
-    this.setData({
-      displayStations,
-      empty: displayStations.length === 0,
+      keyword: '',
+      displayStations: filterStations(this.data.stations, '', this.data.onlyIdle),
     })
   },
 
-  onStationTap(_e: WechatMiniprogram.CustomEvent) {
-    wx.showToast({ title: 'Detail page pending', icon: 'none' })
+  onStationTap(e: WechatMiniprogram.CustomEvent) {
+    const { id } = e.currentTarget.dataset as { id: string }
+    wx.navigateTo({ url: `/pages/station-detail/station-detail?id=${id}` })
   },
 })

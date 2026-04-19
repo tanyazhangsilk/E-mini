@@ -1,48 +1,73 @@
-import { setStoredUser } from '../../utils/storage'
+interface DemoAccountMap {
+  [key: string]: {
+    nickname: string
+    email: string
+    password: string
+  }
+}
 
 Page({
   data: {
     nickname: '',
-    email: '',
+    account: '',
     password: '',
+    confirmPassword: '',
   },
 
-  onNicknameInput(e: WechatMiniprogram.CustomEvent) {
+  onNicknameInput(e: WechatMiniprogram.CustomEvent<{ value: string }>) {
     this.setData({ nickname: e.detail.value })
   },
 
-  onEmailInput(e: WechatMiniprogram.CustomEvent) {
-    this.setData({ email: e.detail.value })
+  onAccountInput(e: WechatMiniprogram.CustomEvent<{ value: string }>) {
+    this.setData({ account: e.detail.value })
   },
 
-  onPasswordInput(e: WechatMiniprogram.CustomEvent) {
+  onPasswordInput(e: WechatMiniprogram.CustomEvent<{ value: string }>) {
     this.setData({ password: e.detail.value })
   },
 
+  onConfirmPasswordInput(e: WechatMiniprogram.CustomEvent<{ value: string }>) {
+    this.setData({ confirmPassword: e.detail.value })
+  },
+
   onRegister() {
-    const { nickname, email, password } = this.data
-    if (!nickname || !email || !password) {
-      wx.showToast({ title: '请填写完整信息', icon: 'none' })
+    const nickname = this.data.nickname.trim()
+    const account = this.data.account.trim()
+    const password = this.data.password.trim()
+    const confirmPassword = this.data.confirmPassword.trim()
+
+    if (!nickname || !account || !password || !confirmPassword) {
+      wx.showToast({ title: '请完整填写注册信息', icon: 'none' })
       return
     }
+
     if (password.length < 6) {
-      wx.showToast({ title: '密码至少6位', icon: 'none' })
+      wx.showToast({ title: '密码至少需要 6 位', icon: 'none' })
       return
     }
-    const users = wx.getStorageSync('echarge_users') || {}
-    if (users[email]) {
-      wx.showToast({ title: '该邮箱已注册', icon: 'none' })
+
+    if (password !== confirmPassword) {
+      wx.showToast({ title: '两次输入的密码不一致', icon: 'none' })
       return
     }
-    users[email] = { nickname, email, password }
+
+    const users = (wx.getStorageSync('echarge_users') || {}) as DemoAccountMap
+    if (users[account]) {
+      wx.showToast({ title: '该账号已注册', icon: 'none' })
+      return
+    }
+
+    users[account] = {
+      nickname,
+      email: account,
+      password,
+    }
     wx.setStorageSync('echarge_users', users)
-    setStoredUser({ nickname, email })
-    const app = getApp<IAppOption>()
-    app.globalData.echargeUser = { nickname, email }
-    wx.showToast({ title: '注册成功', icon: 'success' })
+
+    wx.showToast({ title: '注册成功，请登录', icon: 'success' })
     setTimeout(() => {
-      wx.switchTab({ url: '/pages/home/home' })
-    }, 1500)
+      wx.navigateBack()
+    }, 1200)
   },
 
   goLogin() {

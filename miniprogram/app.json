@@ -1,26 +1,32 @@
 {
   "pages": [
     "pages/login/login",
-    "pages/stations/stations",
-    "pages/scan/scan",
-    "pages/wallet/wallet",
-    "pages/profile/profile",
-    "pages/home/home",
     "pages/register/register",
-    "pages/charging-records/charging-records",
-    "pages/orders/orders"
+    "pages/home/home",
+    "pages/stations/stations",
+    "pages/station-detail/station-detail",
+    "pages/scan/scan",
+    "pages/charging-monitor/charging-monitor",
+    "pages/charging-result/charging-result",
+    "pages/orders/orders",
+    "pages/wallet/wallet",
+    "pages/recharge/recharge",
+    "pages/invoice-apply/invoice-apply",
+    "pages/invoice-records/invoice-records",
+    "pages/profile/profile",
+    "pages/charging-records/charging-records"
   ],
   "window": {
     "navigationBarTextStyle": "black",
     "navigationStyle": "custom",
-    "backgroundColor": "#f6f6f6"
+    "backgroundColor": "#f4f8fb"
   },
   "tabBar": {
     "custom": true,
-    "color": "#999999",
-    "selectedColor": "#06b6d4",
+    "color": "#94a3b8",
+    "selectedColor": "#0f766e",
     "backgroundColor": "#ffffff",
-    "borderStyle": "black",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/home/home",

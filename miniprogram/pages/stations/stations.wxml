@@ -1,46 +1,43 @@
-<navigation-bar title="" back="{{false}}" color="black" background="#fff"></navigation-bar>
+<navigation-bar title="附近电站" back="{{false}}" color="black" background="#f4f8fb"></navigation-bar>
 <view class="stations-page">
-  <view class="page-header">
-    <text class="page-title">Nearby Stations</text>
-  </view>
-  <view class="search-bar">
-    <view class="search-input">
-      <text class="search-icon">S</text>
+  <view class="search-card">
+    <view class="search-box">
+      <text class="search-icon">搜</text>
       <input
-        placeholder="Search station or address"
+        class="search-input"
+        placeholder="搜索电站名称、地址或运营商"
         value="{{keyword}}"
         bindinput="onSearchInput"
-        bindconfirm="onSearch"
       />
+      <text class="clear-text" wx:if="{{keyword}}" bindtap="clearKeyword">清空</text>
     </view>
-    <view class="filter-btn {{filterIdle ? 'active' : ''}}" bindtap="toggleFilter">Idle</view>
+    <view class="filter-btn {{onlyIdle ? 'active' : ''}}" bindtap="toggleFilter">
+      {{onlyIdle ? '空闲优先已开启' : '筛选：空闲优先'}}
+    </view>
   </view>
 
-  <view class="page-tip loading" wx:if="{{loading}}">Loading live stations...</view>
-  <view class="page-tip error" wx:if="{{!loading && errorMessage}}">{{errorMessage}}</view>
+  <view class="result-tip">共为你匹配到 {{displayStations.length}} 个演示电站</view>
 
   <scroll-view class="station-list" scroll-y type="list">
-    <view
-      class="station-card"
-      wx:for="{{displayStations}}"
-      wx:key="id"
-      bindtap="onStationTap"
-      data-id="{{item.id}}"
-    >
-      <view class="station-icon {{item.available / item.total >= 0.5 ? 'high' : 'low'}}">C</view>
-      <view class="station-info">
-        <text class="station-name">{{item.name}}</text>
-        <text class="station-address">ADDR {{item.address}}</text>
-        <text class="station-operator">{{item.operator}}</text>
+    <view class="station-card" wx:for="{{displayStations}}" wx:key="id" data-id="{{item.id}}" bindtap="onStationTap">
+      <view class="station-top">
+        <view class="station-title-wrap">
+          <text class="station-name">{{item.name}}</text>
+          <text class="station-address">{{item.address}}</text>
+        </view>
+        <text class="station-distance">{{item.distance}}</text>
       </view>
-      <text class="station-available {{item.available / item.total >= 0.5 ? 'high' : 'low'}}">
-        {{item.available}}/{{item.total}} idle
-      </text>
-    </view>
 
-    <view class="empty-state" wx:if="{{!loading && empty}}">
-      <text class="empty-title">No stations to display</text>
-      <text class="empty-desc">{{usingMockData ? 'Live API unavailable, demo mode is active.' : 'Try another keyword or refresh later.'}}</text>
+      <view class="station-tags">
+        <text class="tag operator">{{item.operator}}</text>
+        <text class="tag status">{{item.statusText}}</text>
+        <text class="tag price">{{item.priceText}}</text>
+      </view>
+
+      <view class="station-bottom">
+        <text class="station-idle">空闲桩 {{item.available}} / {{item.total}}</text>
+        <text class="station-link">查看详情</text>
+      </view>
     </view>
   </scroll-view>
 </view>

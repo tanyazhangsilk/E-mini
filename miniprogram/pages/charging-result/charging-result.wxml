@@ -1,0 +1,44 @@
+<navigation-bar title="充电完成" back="{{true}}" color="black" background="#f4f8fb"></navigation-bar>
+<view class="result-page" wx:if="{{order}}">
+  <view class="success-card">
+    <view class="success-icon">✓</view>
+    <text class="success-title">本次充电已完成</text>
+    <text class="success-desc">扫码充电主链路已闭环，可直接用于论文第 5 章系统实现截图。</text>
+  </view>
+
+  <view class="detail-card">
+    <view class="detail-row">
+      <text class="label">订单号</text>
+      <text class="value">{{order.orderNo}}</text>
+    </view>
+    <view class="detail-row">
+      <text class="label">充电站</text>
+      <text class="value">{{order.stationName}}</text>
+    </view>
+    <view class="detail-row">
+      <text class="label">开始时间</text>
+      <text class="value">{{order.startTime}}</text>
+    </view>
+    <view class="detail-row">
+      <text class="label">结束时间</text>
+      <text class="value">{{order.endTime}}</text>
+    </view>
+    <view class="detail-row">
+      <text class="label">充电时长</text>
+      <text class="value">{{order.durationText}}</text>
+    </view>
+    <view class="detail-row">
+      <text class="label">充电电量</text>
+      <text class="value">{{order.powerText}}</text>
+    </view>
+    <view class="detail-row">
+      <text class="label">订单金额</text>
+      <text class="value highlight">￥{{order.amountText}}</text>
+    </view>
+  </view>
+
+  <view class="button-row">
+    <button class="ghost-btn" bindtap="goOrders">查看订单</button>
+    <button class="primary-btn" bindtap="goHome">返回首页</button>
+  </view>
+</view>

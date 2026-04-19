@@ -1,0 +1,44 @@
+<navigation-bar title="充电中" back="{{true}}" color="white" background="transparent"></navigation-bar>
+<view class="monitor-page">
+  <view class="hero-card">
+    <text class="hero-title">{{stationName}}</text>
+    <text class="hero-desc">{{pileNo}} · {{gunNo}} · {{statusText}}</text>
+    <text class="hero-order">订单号 {{orderNo}}</text>
+  </view>
+
+  <view class="metrics-card">
+    <view class="metric-item">
+      <text class="metric-label">充电时长</text>
+      <text class="metric-value">{{durationText}}</text>
+    </view>
+    <view class="metric-item">
+      <text class="metric-label">当前电量</text>
+      <text class="metric-value">{{batteryText}}</text>
+    </view>
+    <view class="metric-item">
+      <text class="metric-label">当前费用</text>
+      <text class="metric-value">￥{{feeText}}</text>
+    </view>
+    <view class="metric-item">
+      <text class="metric-label">当前功率</text>
+      <text class="metric-value">{{powerText}}</text>
+    </view>
+  </view>
+
+  <view class="info-card">
+    <view class="info-row">
+      <text class="info-label">累计电量</text>
+      <text class="info-value">{{energyText}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">开始时间</text>
+      <text class="info-value">{{startedAt}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">充电说明</text>
+      <text class="info-value">当前为本地 mock 演示，数据会自动递增，适合论文截图展示。</text>
+    </view>
+  </view>
+
+  <button class="danger-btn" bindtap="endCharging">结束充电</button>
+</view>

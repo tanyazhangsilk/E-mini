@@ -1,0 +1,36 @@
+<navigation-bar title="发票申请" back="{{true}}" color="black" background="#f4f8fb"></navigation-bar>
+<view class="invoice-page" wx:if="{{order}}">
+  <view class="card">
+    <text class="card-title">关联订单信息</text>
+    <view class="info-row">
+      <text class="label">订单号</text>
+      <text class="value">{{order.orderNo}}</text>
+    </view>
+    <view class="info-row">
+      <text class="label">充电站</text>
+      <text class="value">{{order.stationName}}</text>
+    </view>
+    <view class="info-row">
+      <text class="label">开票金额</text>
+      <text class="value highlight">￥{{order.amountText}}</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <text class="card-title">开票信息</text>
+    <view class="field">
+      <text class="field-label">发票抬头</text>
+      <input class="field-input" value="{{title}}" bindinput="onTitleInput" placeholder="请输入发票抬头" />
+    </view>
+    <view class="field">
+      <text class="field-label">接收邮箱</text>
+      <input class="field-input" value="{{email}}" bindinput="onEmailInput" placeholder="请输入电子邮箱" />
+    </view>
+    <view class="field">
+      <text class="field-label">备注</text>
+      <textarea class="field-textarea" value="{{note}}" bindinput="onNoteInput" placeholder="请输入备注信息"></textarea>
+    </view>
+  </view>
+
+  <button class="primary-btn" bindtap="submitInvoice">提交申请</button>
+</view>

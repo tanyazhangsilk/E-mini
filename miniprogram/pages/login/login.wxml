@@ -1,27 +1,46 @@
 <navigation-bar title="" back="{{false}}" color="black" background="transparent"></navigation-bar>
-<view class="login-page">
-  <view class="brand-section">
-    <view class="logo">
-      <view class="logo-icon">⚡</view>
+<view class="auth-page">
+  <view class="hero-card">
+    <view class="logo-mark">
+      <text class="logo-text">E</text>
     </view>
-    <text class="app-name">E-Charge</text>
-    <text class="slogan">智能充电 绿色出行</text>
+    <text class="brand-title">E-Charge 聚合充电平台</text>
+    <text class="brand-subtitle">用户登录与注册演示界面</text>
   </view>
 
-  <view class="form-section">
-    <view class="form-item">
-      <text class="label">邮箱</text>
-      <input class="input" type="text" placeholder="请输入邮箱" value="{{email}}" bindinput="onEmailInput" />
+  <view class="form-card">
+    <view class="section-title">
+      <text class="section-heading">欢迎登录</text>
+      <text class="section-desc">支持手机号或邮箱账号登录，便于论文演示与截图展示。</text>
     </view>
-    <view class="form-item">
-      <text class="label">密码</text>
-      <input class="input" type="text" password placeholder="请输入密码" value="{{password}}" bindinput="onPasswordInput" />
-    </view>
-    <button class="btn-login" bindtap="onLogin">登录</button>
-  </view>
 
-  <view class="footer-link">
-    <text>还没有账号? </text>
-    <text class="link" bindtap="goRegister">立即注册</text>
+    <view class="field">
+      <text class="field-label">手机号 / 邮箱</text>
+      <input
+        class="field-input"
+        placeholder="请输入手机号或邮箱"
+        value="{{account}}"
+        bindinput="onAccountInput"
+      />
+    </view>
+
+    <view class="field">
+      <text class="field-label">密码</text>
+      <input
+        class="field-input"
+        password
+        placeholder="请输入登录密码"
+        value="{{password}}"
+        bindinput="onPasswordInput"
+      />
+    </view>
+
+    <button class="primary-btn" bindtap="onLogin">登录</button>
+    <button class="ghost-btn" bindtap="onDemoLogin">演示登录</button>
+
+    <view class="footer-line">
+      <text class="footer-text">还没有账号？</text>
+      <text class="footer-link" bindtap="goRegister">立即注册</text>
+    </view>
   </view>
 </view>

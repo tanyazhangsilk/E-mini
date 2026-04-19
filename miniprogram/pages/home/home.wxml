@@ -1,49 +1,75 @@
 <navigation-bar title="" back="{{false}}" color="white" background="transparent"></navigation-bar>
-<scroll-view class="scrollarea" scroll-y type="list">
+<scroll-view class="page-scroll" scroll-y type="list">
   <view class="home-page">
-    <view class="header">
-      <view class="header-top">
-        <text class="greeting">Hi, {{nickname}}</text>
-        <view class="settings-icon" bindtap="goSettings">▣</view>
+    <view class="hero-section">
+      <view class="hero-top">
+        <view>
+          <text class="hero-greeting">欢迎回来，{{nickname}}</text>
+          <text class="hero-desc">E-Charge 聚合充电平台为你推荐附近优质站点与快捷服务。</text>
+        </view>
+        <view class="hero-badge">论文演示版</view>
       </view>
-      <view class="quick-actions">
-        <view class="action-item" bindtap="goScan">
-          <view class="action-icon">⚡</view>
-          <text class="action-text">扫码充电</text>
+
+      <view class="balance-card">
+        <view>
+          <text class="balance-label">账户余额</text>
+          <text class="balance-amount">￥{{balance}}</text>
         </view>
-        <view class="action-item" bindtap="goStations">
-          <view class="action-icon">📍</view>
-          <text class="action-text">附近电站</text>
-        </view>
-        <view class="action-item" bindtap="goWallet">
-          <view class="action-icon">👛</view>
-          <text class="action-text">我的钱包</text>
+        <view class="balance-side">
+          <text class="balance-side-title">本周优惠</text>
+          <text class="balance-side-text">夜间服务费 8 折</text>
         </view>
       </view>
     </view>
 
-    <view class="wallet-section">
-      <view class="wallet-info">
-        <text class="wallet-label">钱包余额</text>
-        <text class="wallet-amount">¥{{balance}}</text>
-      </view>
-      <view class="recharge-btn" bindtap="goWallet">充值</view>
-    </view>
-
-    <view class="stations-section">
+    <view class="section-card">
       <view class="section-header">
-        <text class="section-title">精选充电站</text>
-        <text class="view-all" bindtap="goStations">查看全部</text>
+        <text class="section-title">核心服务入口</text>
+        <text class="section-more">用户端主功能</text>
       </view>
-      <view class="station-list">
-        <view class="station-card" wx:for="{{stations}}" wx:key="id" bindtap="onStationTap" data-id="{{item.id}}">
-          <view class="station-icon {{item.available / item.total >= 0.5 ? 'high' : 'low'}}">⚡</view>
-          <view class="station-info">
+
+      <view class="quick-grid">
+        <view class="quick-item" wx:for="{{quickActions}}" wx:key="id" data-type="{{item.type}}" bindtap="onActionTap">
+          <view class="quick-icon">{{item.icon}}</view>
+          <text class="quick-title">{{item.title}}</text>
+          <text class="quick-desc">{{item.desc}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section-card">
+      <view class="section-header">
+        <text class="section-title">推荐电站</text>
+        <text class="section-more">3 个优选站点</text>
+      </view>
+
+      <view class="station-card" wx:for="{{stations}}" wx:key="id" data-id="{{item.id}}" bindtap="onStationTap">
+        <view class="station-main">
+          <view class="station-topline">
             <text class="station-name">{{item.name}}</text>
-            <text class="station-address">📍 {{item.address}}</text>
-            <text class="station-operator">{{item.operator}}</text>
+            <text class="station-status">{{item.statusText}}</text>
           </view>
-          <text class="station-available {{item.available / item.total >= 0.5 ? 'high' : 'low'}}">{{item.available}}/{{item.total}}空闲</text>
+          <text class="station-address">{{item.address}}</text>
+          <view class="station-meta">
+            <text>{{item.operator}}</text>
+            <text>{{item.distance}}</text>
+            <text>{{item.available}} / {{item.total}} 空闲</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="section-card">
+      <view class="section-header">
+        <text class="section-title">优惠活动与优惠券</text>
+        <text class="section-more">静态演示数据</text>
+      </view>
+
+      <view class="promo-card" wx:for="{{promotions}}" wx:key="id" bindtap="onPromotionTap">
+        <view class="promo-tag">{{item.tag}}</view>
+        <view class="promo-content">
+          <text class="promo-title">{{item.title}}</text>
+          <text class="promo-desc">{{item.desc}}</text>
         </view>
       </view>
     </view>

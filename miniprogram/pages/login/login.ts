@@ -1,43 +1,66 @@
-import { getStoredUser, setStoredUser } from '../../utils/storage'
+import { setStoredUser } from '../../utils/storage'
+
+const app = getApp<IAppOption>()
+
+interface DemoAccountMap {
+  [key: string]: {
+    nickname: string
+    email: string
+    password: string
+  }
+}
 
 Page({
   data: {
-    email: '',
+    account: '',
     password: '',
   },
 
-  onEmailInput(e: WechatMiniprogram.CustomEvent) {
-    this.setData({ email: e.detail.value })
+  onLoad() {
+    this.setData({
+      account: 'demo@echarge.com',
+      password: '123456',
+    })
   },
 
-  onPasswordInput(e: WechatMiniprogram.CustomEvent) {
+  onAccountInput(e: WechatMiniprogram.CustomEvent<{ value: string }>) {
+    this.setData({ account: e.detail.value })
+  },
+
+  onPasswordInput(e: WechatMiniprogram.CustomEvent<{ value: string }>) {
     this.setData({ password: e.detail.value })
   },
 
-  onShow() {
-    const user = getStoredUser()
-    if (user) {
-      wx.switchTab({ url: '/pages/home/home' })
-    }
-  },
-
   onLogin() {
-    const { email, password } = this.data
-    if (!email || !password) {
-      wx.showToast({ title: '请填写邮箱和密码', icon: 'none' })
+    const account = this.data.account.trim()
+    const password = this.data.password.trim()
+
+    if (!account || !password) {
+      wx.showToast({ title: '请填写账号和密码', icon: 'none' })
       return
     }
-    // 模拟登录：从本地存储验证（注册过的用户）
-    const users = wx.getStorageSync('echarge_users') || {}
-    const user = users[email]
-    if (user && user.password === password) {
-      setStoredUser({ nickname: user.nickname, email })
-      const app = getApp<IAppOption>()
-      app.globalData.echargeUser = { nickname: user.nickname, email }
-      wx.switchTab({ url: '/pages/home/home' })
-    } else {
-      wx.showToast({ title: '邮箱或密码错误', icon: 'none' })
+
+    const users = (wx.getStorageSync('echarge_users') || {}) as DemoAccountMap
+    const user = users[account]
+
+    if (!user || user.password !== password) {
+      wx.showToast({ title: '账号或密码不正确', icon: 'none' })
+      return
     }
+
+    setStoredUser({ nickname: user.nickname, email: user.email })
+    app.globalData.echargeUser = { nickname: user.nickname, email: user.email }
+    wx.switchTab({ url: '/pages/home/home' })
+  },
+
+  onDemoLogin() {
+    const demoUser = {
+      nickname: '演示用户',
+      email: 'demo@echarge.com',
+    }
+    setStoredUser(demoUser)
+    app.globalData.echargeUser = demoUser
+    wx.switchTab({ url: '/pages/home/home' })
   },
 
   goRegister() {
