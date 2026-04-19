@@ -4,33 +4,32 @@ page {
 }
 
 .result-page {
-  padding: calc(var(--status-bar-height, 0) + 36rpx) 32rpx 48rpx;
+  padding: calc(var(--status-bar-height, 0) + 34rpx) 32rpx 48rpx;
 }
 
 .success-card,
-.detail-card {
-  background: #ffffff;
-  border-radius: 30rpx;
-  box-shadow: 0 18rpx 40rpx rgba(15, 23, 42, 0.06);
+.settlement-card,
+.detail-card,
+.invoice-card {
+  padding: 28rpx;
+  margin-bottom: 22rpx;
 }
 
 .success-card {
-  padding: 40rpx 32rpx;
   text-align: center;
-  margin-bottom: 24rpx;
 }
 
 .success-icon {
-  width: 96rpx;
-  height: 96rpx;
+  width: 100rpx;
+  height: 100rpx;
   border-radius: 50%;
-  margin: 0 auto 22rpx;
   background: #dcfce7;
   color: #15803d;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 46rpx;
+  margin: 0 auto 20rpx;
+  font-size: 48rpx;
   font-weight: 700;
 }
 
@@ -39,7 +38,7 @@ page {
   color: #0f172a;
   font-size: 36rpx;
   font-weight: 700;
-  margin-bottom: 12rpx;
+  margin-bottom: 10rpx;
 }
 
 .success-desc {
@@ -49,18 +48,37 @@ page {
   line-height: 1.7;
 }
 
-.detail-card {
-  padding: 30rpx;
+.settlement-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-bottom: 18rpx;
 }
 
+.settlement-label {
+  display: block;
+  color: #64748b;
+  font-size: 24rpx;
+  margin-bottom: 10rpx;
+}
+
+.settlement-amount {
+  display: block;
+  color: #0f766e;
+  font-size: 56rpx;
+  font-weight: 700;
+}
+
+.settlement-row,
 .detail-row {
   display: flex;
   justify-content: space-between;
-  gap: 20rpx;
-  padding: 18rpx 0;
+  gap: 18rpx;
+  padding: 16rpx 0;
   border-bottom: 2rpx solid #f1f5f9;
 }
 
+.settlement-row:last-child,
 .detail-row:last-child {
   border-bottom: none;
 }
@@ -76,33 +94,45 @@ page {
   text-align: right;
 }
 
-.highlight {
+.invoice-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 18rpx;
+  align-items: center;
+}
+
+.invoice-title {
+  display: block;
+  color: #0f172a;
+  font-size: 28rpx;
+  font-weight: 700;
+  margin-bottom: 10rpx;
+}
+
+.invoice-desc {
+  display: block;
+  color: #64748b;
+  font-size: 23rpx;
+  line-height: 1.7;
+}
+
+.invoice-link {
   color: #0f766e;
+  font-size: 24rpx;
   font-weight: 700;
 }
 
 .button-row {
   display: flex;
   gap: 18rpx;
-  margin-top: 32rpx;
+  margin-top: 28rpx;
 }
 
-.ghost-btn,
-.primary-btn {
+.btn-secondary,
+.btn-primary {
   flex: 1;
-  height: 92rpx;
-  line-height: 92rpx;
-  border-radius: 999rpx;
-  font-size: 30rpx;
-  border: none;
 }
 
-.ghost-btn {
-  background: #e6fffb;
-  color: #0f766e;
-}
-
-.primary-btn {
-  background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
-  color: #ffffff;
+.home-btn {
+  margin-top: 18rpx;
 }

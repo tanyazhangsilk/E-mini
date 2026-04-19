@@ -1,4 +1,4 @@
-import { getStationById, StationItem } from '../../services/mock'
+import { StationItem, getStationById } from '../../services/mock'
 
 Page({
   data: {
@@ -6,12 +6,26 @@ Page({
   },
 
   onLoad(options: Record<string, string | undefined>) {
-    const station = getStationById(options.id || 'station-001')
-    this.setData({ station })
+    this.setData({
+      station: getStationById(options.id || 'station-001'),
+    })
+  },
+
+  toggleFavorite() {
+    const station = this.data.station
+    if (!station) {
+      return
+    }
+    this.setData({
+      station: {
+        ...station,
+        favorite: !station.favorite,
+      },
+    })
   },
 
   goNavigate() {
-    wx.showToast({ title: '导航功能已预留', icon: 'none' })
+    wx.showToast({ title: '已唤起路线规划', icon: 'none' })
   },
 
   goCharge() {

@@ -1,33 +1,58 @@
-import { getStations, StationItem } from '../../services/mock'
+import { StationItem, getStations } from '../../services/mock'
 
-function filterStations(stations: StationItem[], keyword: string, onlyIdle: boolean) {
+type SortKey = 'distance' | 'price' | 'idle' | 'fast'
+
+function buildDisplayStations(stations: StationItem[], keyword: string, sortKey: SortKey) {
   const lowerKeyword = keyword.trim().toLowerCase()
 
-  return stations.filter(item => {
-    const matchedKeyword =
-      !lowerKeyword ||
+  const filtered = stations.filter(item => {
+    if (!lowerKeyword) {
+      return true
+    }
+    return (
       item.name.toLowerCase().includes(lowerKeyword) ||
       item.address.toLowerCase().includes(lowerKeyword) ||
       item.operator.toLowerCase().includes(lowerKeyword)
+    )
+  })
 
-    const matchedFilter = !onlyIdle || item.available / item.total >= 0.4
-    return matchedKeyword && matchedFilter
+  return filtered.sort((left, right) => {
+    if (sortKey === 'distance') {
+      return left.distanceValue - right.distanceValue
+    }
+    if (sortKey === 'price') {
+      return left.currentPriceValue - right.currentPriceValue
+    }
+    if (sortKey === 'idle') {
+      return right.available - left.available
+    }
+    return right.fastCount - left.fastCount
   })
 }
 
 Page({
   data: {
+    loading: true,
     keyword: '',
-    onlyIdle: false,
+    sortKey: 'distance' as SortKey,
+    sortOptions: [
+      { key: 'distance', label: '距离优先' },
+      { key: 'price', label: '价格优先' },
+      { key: 'idle', label: '空闲优先' },
+      { key: 'fast', label: '快充优先' },
+    ],
     stations: [] as StationItem[],
     displayStations: [] as StationItem[],
+    empty: false,
   },
 
   onLoad() {
     const stations = getStations()
     this.setData({
+      loading: false,
       stations,
-      displayStations: stations,
+      displayStations: buildDisplayStations(stations, '', 'distance'),
+      empty: stations.length === 0,
     })
   },
 
@@ -42,24 +67,30 @@ Page({
 
   onSearchInput(e: WechatMiniprogram.CustomEvent<{ value: string }>) {
     const keyword = e.detail.value
+    const displayStations = buildDisplayStations(this.data.stations, keyword, this.data.sortKey)
     this.setData({
       keyword,
-      displayStations: filterStations(this.data.stations, keyword, this.data.onlyIdle),
+      displayStations,
+      empty: displayStations.length === 0,
     })
   },
 
-  toggleFilter() {
-    const onlyIdle = !this.data.onlyIdle
+  selectSort(e: WechatMiniprogram.CustomEvent) {
+    const { key } = e.currentTarget.dataset as { key: SortKey }
+    const displayStations = buildDisplayStations(this.data.stations, this.data.keyword, key)
     this.setData({
-      onlyIdle,
-      displayStations: filterStations(this.data.stations, this.data.keyword, onlyIdle),
+      sortKey: key,
+      displayStations,
+      empty: displayStations.length === 0,
     })
   },
 
   clearKeyword() {
+    const displayStations = buildDisplayStations(this.data.stations, '', this.data.sortKey)
     this.setData({
       keyword: '',
-      displayStations: filterStations(this.data.stations, '', this.data.onlyIdle),
+      displayStations,
+      empty: displayStations.length === 0,
     })
   },
 

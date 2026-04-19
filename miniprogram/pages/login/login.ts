@@ -10,16 +10,31 @@ interface AccountMap {
   }
 }
 
+type LoginType = 'mobile' | 'email'
+
 Page({
   data: {
+    loginType: 'email' as LoginType,
     account: '',
     password: '',
+    agreeChecked: true,
+    accountLabel: '邮箱账号',
+    accountPlaceholder: '请输入邮箱账号',
   },
 
   onLoad() {
+    this.updateLoginTypeView('email')
     this.setData({
       account: 'user@echarge.com',
       password: '123456',
+    })
+  },
+
+  switchLoginType(e: WechatMiniprogram.CustomEvent) {
+    const { type } = e.currentTarget.dataset as { type: LoginType }
+    this.updateLoginTypeView(type)
+    this.setData({
+      account: type === 'mobile' ? '13800138000' : 'user@echarge.com',
     })
   },
 
@@ -31,9 +46,20 @@ Page({
     this.setData({ password: e.detail.value })
   },
 
+  toggleAgree() {
+    this.setData({
+      agreeChecked: !this.data.agreeChecked,
+    })
+  },
+
   onLogin() {
     const account = this.data.account.trim()
     const password = this.data.password.trim()
+
+    if (!this.data.agreeChecked) {
+      wx.showToast({ title: '请先勾选服务协议', icon: 'none' })
+      return
+    }
 
     if (!account || !password) {
       wx.showToast({ title: '请填写账号和密码', icon: 'none' })
@@ -41,7 +67,10 @@ Page({
     }
 
     const users = (wx.getStorageSync('echarge_users') || {}) as AccountMap
-    const user = users[account]
+    const user =
+      this.data.loginType === 'mobile'
+        ? users['user@echarge.com']
+        : users[account]
 
     if (!user || user.password !== password) {
       wx.showToast({ title: '账号或密码不正确', icon: 'none' })
@@ -65,5 +94,13 @@ Page({
 
   goRegister() {
     wx.navigateTo({ url: '/pages/register/register' })
+  },
+
+  updateLoginTypeView(type: LoginType) {
+    this.setData({
+      loginType: type,
+      accountLabel: type === 'mobile' ? '手机号' : '邮箱账号',
+      accountPlaceholder: type === 'mobile' ? '请输入手机号' : '请输入邮箱账号',
+    })
   },
 })

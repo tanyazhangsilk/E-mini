@@ -1,4 +1,4 @@
-import { getInvoices, InvoiceRecord } from '../../services/mock'
+import { InvoiceRecord, getInvoices } from '../../services/mock'
 
 Page({
   data: {

@@ -1,11 +1,19 @@
 import { getStoredBalance, setStoredBalance } from '../utils/storage'
 
+export interface PricePeriod {
+  label: string
+  time: string
+  price: string
+}
+
 export interface StationPile {
   id: string
   label: string
   power: string
+  connector: string
   status: 'idle' | 'busy' | 'fault'
   statusText: string
+  queueText: string
 }
 
 export interface StationItem {
@@ -13,16 +21,28 @@ export interface StationItem {
   name: string
   address: string
   operator: string
+  statusKey: 'idle' | 'busy' | 'queue'
   available: number
   total: number
   distance: string
+  distanceValue: number
   statusText: string
   businessHours: string
   parkingTips: string
   serviceTips: string
-  priceText: string
+  currentPriceText: string
+  currentPriceValue: number
   score: string
+  reviewCount: number
   tags: string[]
+  serviceTags: string[]
+  recommendReasons: string[]
+  chargeType: '快充优先' | '快慢结合' | '慢充服务'
+  fastCount: number
+  slowCount: number
+  favorite: boolean
+  announcement: string
+  priceBreakdown: PricePeriod[]
   piles: StationPile[]
 }
 
@@ -31,6 +51,8 @@ export interface PromotionCard {
   title: string
   desc: string
   tag: string
+  couponValue: string
+  expireText: string
 }
 
 export interface WalletRecord {
@@ -39,7 +61,9 @@ export interface WalletRecord {
   time: string
   amountText: string
   type: 'income' | 'expense'
+  category: 'recharge' | 'consume'
   channel: string
+  description: string
 }
 
 export type OrderStatus = 'charging' | 'completed' | 'abnormal'
@@ -57,15 +81,23 @@ export interface OrderItem {
   powerText: string
   amountText: string
   amountValue: number
+  payableText: string
+  discountText: string
+  discountValue: number
   status: OrderStatus
   statusText: string
+  paymentStatusText: string
+  invoiceStatusText: string
   canInvoice: boolean
+  canChargeAgain: boolean
+  abnormalReason: string
 }
 
 export interface InvoiceRecord {
   id: string
   orderId: string
   orderNo: string
+  typeText: string
   title: string
   email: string
   amountText: string
@@ -74,6 +106,8 @@ export interface InvoiceRecord {
   applyTime: string
   note: string
   attachmentName: string
+  progressText: string
+  rejectReason: string
 }
 
 export interface ChargingSession {
@@ -89,6 +123,10 @@ export interface ChargingSession {
   currentPower: number
   currentFee: number
   energy: number
+  electricityFee: number
+  serviceFee: number
+  discountFee: number
+  priceNote: string
 }
 
 const ORDERS_KEY = 'echarge_orders'
@@ -104,21 +142,37 @@ const STATIONS: StationItem[] = [
     name: '天府软件园综合充电站',
     address: '成都市高新区天府五街 200 号地下停车场 B1',
     operator: 'E-Charge 自营',
+    statusKey: 'idle',
     available: 8,
     total: 12,
     distance: '1.2km',
+    distanceValue: 1.2,
     statusText: '空闲充足',
     businessHours: '00:00 - 24:00',
     parkingTips: '停车 2 小时内免费，支持新能源专属车位',
-    serviceTips: '便利店 / 洗手间 / 休息区',
-    priceText: '￥1.42/度，服务费 ￥0.58/度',
+    serviceTips: '便利店 / 洗手间 / 休息区 / 地下电梯',
+    currentPriceText: '当前电价 ￥1.42/度',
+    currentPriceValue: 1.42,
     score: '4.9',
+    reviewCount: 268,
     tags: ['快充', '停车便利', '24 小时'],
+    serviceTags: ['距离最近', '夜间优惠', '常用站点'],
+    recommendReasons: ['距离最近', '空闲较多', '夜间优惠'],
+    chargeType: '快充优先',
+    fastCount: 8,
+    slowCount: 4,
+    favorite: true,
+    announcement: '晚间 20:00 后服务费优惠，站内支持电子导航定位。',
+    priceBreakdown: [
+      { label: '峰时', time: '10:00 - 15:00', price: '￥1.78/度' },
+      { label: '平时', time: '07:00 - 10:00 / 15:00 - 20:00', price: '￥1.42/度' },
+      { label: '谷时', time: '20:00 - 次日 07:00', price: '￥1.18/度' },
+    ],
     piles: [
-      { id: 'TF-01', label: 'A1 号桩', power: '120kW', status: 'idle', statusText: '空闲' },
-      { id: 'TF-02', label: 'A2 号桩', power: '120kW', status: 'idle', statusText: '空闲' },
-      { id: 'TF-03', label: 'B1 号桩', power: '60kW', status: 'busy', statusText: '充电中' },
-      { id: 'TF-04', label: 'B2 号桩', power: '60kW', status: 'idle', statusText: '空闲' },
+      { id: 'TF-01', label: 'A1 号枪', power: '120kW', connector: '国标直流', status: 'idle', statusText: '空闲', queueText: '到站可用' },
+      { id: 'TF-02', label: 'A2 号枪', power: '120kW', connector: '国标直流', status: 'idle', statusText: '空闲', queueText: '推荐使用' },
+      { id: 'TF-03', label: 'B1 号枪', power: '60kW', connector: '国标直流', status: 'busy', statusText: '充电中', queueText: '预计 12 分钟可用' },
+      { id: 'TF-04', label: 'B2 号枪', power: '60kW', connector: '国标交流', status: 'idle', statusText: '空闲', queueText: '到站可用' },
     ],
   },
   {
@@ -126,21 +180,37 @@ const STATIONS: StationItem[] = [
     name: '环球中心北广场充电站',
     address: '成都市高新区天府大道北段 1700 号 P2 停车区',
     operator: '特来电',
+    statusKey: 'busy',
     available: 3,
     total: 8,
     distance: '2.6km',
+    distanceValue: 2.6,
     statusText: '部分繁忙',
     businessHours: '07:00 - 23:00',
-    parkingTips: '商场停车高峰期较紧张，建议错峰前往',
-    serviceTips: '商场配套 / 咖啡店 / 导航指引',
-    priceText: '￥1.55/度，服务费 ￥0.60/度',
+    parkingTips: '商场高峰时段车位紧张，建议错峰前往',
+    serviceTips: '商场配套 / 咖啡店 / 休息区 / 地图导航',
+    currentPriceText: '当前电价 ￥1.55/度',
+    currentPriceValue: 1.55,
     score: '4.7',
+    reviewCount: 196,
     tags: ['商圈站点', '快充', '导航便捷'],
+    serviceTags: ['高评分', '商圈补能', '停车方便'],
+    recommendReasons: ['购物补能', '快充优先', '服务稳定'],
+    chargeType: '快慢结合',
+    fastCount: 5,
+    slowCount: 3,
+    favorite: false,
+    announcement: '周末 11:00 - 18:00 为高峰时段，建议提前查看空闲状态。',
+    priceBreakdown: [
+      { label: '峰时', time: '11:00 - 16:00', price: '￥1.88/度' },
+      { label: '平时', time: '08:00 - 11:00 / 16:00 - 21:00', price: '￥1.55/度' },
+      { label: '谷时', time: '21:00 - 次日 08:00', price: '￥1.26/度' },
+    ],
     piles: [
-      { id: 'HQ-11', label: 'C1 号桩', power: '180kW', status: 'busy', statusText: '充电中' },
-      { id: 'HQ-12', label: 'C2 号桩', power: '180kW', status: 'idle', statusText: '空闲' },
-      { id: 'HQ-13', label: 'D1 号桩', power: '90kW', status: 'fault', statusText: '设备维护' },
-      { id: 'HQ-14', label: 'D2 号桩', power: '90kW', status: 'idle', statusText: '空闲' },
+      { id: 'HQ-11', label: 'C1 号枪', power: '180kW', connector: '国标直流', status: 'busy', statusText: '充电中', queueText: '预计 18 分钟可用' },
+      { id: 'HQ-12', label: 'C2 号枪', power: '180kW', connector: '国标直流', status: 'idle', statusText: '空闲', queueText: '到站可用' },
+      { id: 'HQ-13', label: 'D1 号枪', power: '90kW', connector: '国标直流', status: 'fault', statusText: '设备维护', queueText: '暂停服务' },
+      { id: 'HQ-14', label: 'D2 号枪', power: '90kW', connector: '国标交流', status: 'idle', statusText: '空闲', queueText: '到站可用' },
     ],
   },
   {
@@ -148,21 +218,37 @@ const STATIONS: StationItem[] = [
     name: '东客站出行服务充电站',
     address: '成都市成华区迎晖路 8 号东广场停车楼 1 层',
     operator: '星星充电',
+    statusKey: 'idle',
     available: 5,
     total: 10,
     distance: '3.8km',
+    distanceValue: 3.8,
     statusText: '空闲充足',
     businessHours: '06:30 - 23:30',
-    parkingTips: '支持网约车优先排队，停车指引清晰',
-    serviceTips: '候车区 / 自动售货机 / 站内客服',
-    priceText: '￥1.36/度，服务费 ￥0.52/度',
+    parkingTips: '支持网约车优先排队，站内引导清晰',
+    serviceTips: '候车区 / 自动售货机 / 站内客服 / 卫生间',
+    currentPriceText: '当前电价 ￥1.36/度',
+    currentPriceValue: 1.36,
     score: '4.8',
+    reviewCount: 143,
     tags: ['交通枢纽', '普通充电', '服务完善'],
+    serviceTags: ['价格友好', '空闲较多', '适合长停'],
+    recommendReasons: ['价格优先', '空闲较多', '交通枢纽'],
+    chargeType: '快慢结合',
+    fastCount: 4,
+    slowCount: 6,
+    favorite: false,
+    announcement: '站点支持车辆长停补能，请按引导有序驶入车位。',
+    priceBreakdown: [
+      { label: '峰时', time: '09:00 - 14:00', price: '￥1.62/度' },
+      { label: '平时', time: '07:00 - 09:00 / 14:00 - 20:00', price: '￥1.36/度' },
+      { label: '谷时', time: '20:00 - 次日 07:00', price: '￥1.08/度' },
+    ],
     piles: [
-      { id: 'DK-21', label: 'E1 号桩', power: '90kW', status: 'idle', statusText: '空闲' },
-      { id: 'DK-22', label: 'E2 号桩', power: '90kW', status: 'busy', statusText: '充电中' },
-      { id: 'DK-23', label: 'F1 号桩', power: '60kW', status: 'idle', statusText: '空闲' },
-      { id: 'DK-24', label: 'F2 号桩', power: '60kW', status: 'idle', statusText: '空闲' },
+      { id: 'DK-21', label: 'E1 号枪', power: '90kW', connector: '国标直流', status: 'idle', statusText: '空闲', queueText: '到站可用' },
+      { id: 'DK-22', label: 'E2 号枪', power: '90kW', connector: '国标直流', status: 'busy', statusText: '充电中', queueText: '预计 8 分钟可用' },
+      { id: 'DK-23', label: 'F1 号枪', power: '60kW', connector: '国标交流', status: 'idle', statusText: '空闲', queueText: '到站可用' },
+      { id: 'DK-24', label: 'F2 号枪', power: '60kW', connector: '国标交流', status: 'idle', statusText: '空闲', queueText: '到站可用' },
     ],
   },
   {
@@ -170,21 +256,37 @@ const STATIONS: StationItem[] = [
     name: '金融城商务区充电站',
     address: '成都市高新区交子大道 333 号 A 座地下停车场',
     operator: 'E-Charge 合作站',
+    statusKey: 'queue',
     available: 2,
     total: 6,
     distance: '4.5km',
+    distanceValue: 4.5,
     statusText: '高峰排队',
     businessHours: '00:00 - 24:00',
-    parkingTips: '工作日午间高峰排队较多',
-    serviceTips: '商务配套 / 代客泊车 / 保安值守',
-    priceText: '￥1.68/度，服务费 ￥0.65/度',
+    parkingTips: '工作日午间高峰排队较多，建议提前查看空闲枪口',
+    serviceTips: '商务配套 / 代客泊车 / 保安值守 / 洗车服务',
+    currentPriceText: '当前电价 ￥1.68/度',
+    currentPriceValue: 1.68,
     score: '4.6',
+    reviewCount: 127,
     tags: ['商务区', '高峰时段', '24 小时'],
+    serviceTags: ['企业常用', '车位紧张', '高峰排队'],
+    recommendReasons: ['商务区补能', '全天营业', '企业用户常用'],
+    chargeType: '快充优先',
+    fastCount: 4,
+    slowCount: 2,
+    favorite: true,
+    announcement: '工作日午间 11:30 - 14:00 为高峰时段，请遵守排队秩序。',
+    priceBreakdown: [
+      { label: '峰时', time: '11:30 - 14:00', price: '￥1.96/度' },
+      { label: '平时', time: '08:00 - 11:30 / 14:00 - 20:00', price: '￥1.68/度' },
+      { label: '谷时', time: '20:00 - 次日 08:00', price: '￥1.32/度' },
+    ],
     piles: [
-      { id: 'JR-31', label: 'G1 号桩', power: '120kW', status: 'busy', statusText: '充电中' },
-      { id: 'JR-32', label: 'G2 号桩', power: '120kW', status: 'busy', statusText: '充电中' },
-      { id: 'JR-33', label: 'H1 号桩', power: '60kW', status: 'idle', statusText: '空闲' },
-      { id: 'JR-34', label: 'H2 号桩', power: '60kW', status: 'idle', statusText: '空闲' },
+      { id: 'JR-31', label: 'G1 号枪', power: '120kW', connector: '国标直流', status: 'busy', statusText: '充电中', queueText: '预计 20 分钟可用' },
+      { id: 'JR-32', label: 'G2 号枪', power: '120kW', connector: '国标直流', status: 'busy', statusText: '充电中', queueText: '预计 26 分钟可用' },
+      { id: 'JR-33', label: 'H1 号枪', power: '60kW', connector: '国标交流', status: 'idle', statusText: '空闲', queueText: '到站可用' },
+      { id: 'JR-34', label: 'H2 号枪', power: '60kW', connector: '国标交流', status: 'idle', statusText: '空闲', queueText: '到站可用' },
     ],
   },
 ]
@@ -192,15 +294,27 @@ const STATIONS: StationItem[] = [
 const PROMOTIONS: PromotionCard[] = [
   {
     id: 'promo-01',
-    title: '新用户首充立减 12 元',
-    desc: '完成首笔钱包充值后自动到账，适用于合作快充站点。',
+    title: '首充礼包已到账',
+    desc: '钱包首次充值满 100 元，可领取 12 元充电券，适用于合作快充站点。',
     tag: '新人福利',
+    couponValue: '￥12',
+    expireText: '有效期至 05-31',
   },
   {
     id: 'promo-02',
-    title: '周末夜间服务费 8 折',
-    desc: '每周五至周日 20:00 后生效，夜间充电更省心。',
+    title: '夜间充电服务费 8 折',
+    desc: '每周五至周日 20:00 后生效，夜间补能更划算。',
     tag: '限时优惠',
+    couponValue: '8 折',
+    expireText: '每周末可用',
+  },
+  {
+    id: 'promo-03',
+    title: '常用站点满减券',
+    desc: '近 30 天累计充电 3 次，可领取常用站点专属满减权益。',
+    tag: '会员权益',
+    couponValue: '满 30 减 6',
+    expireText: '自动发放',
   },
 ]
 
@@ -211,7 +325,9 @@ const DEFAULT_WALLET_RECORDS: WalletRecord[] = [
     time: '2026-04-18 20:15',
     amountText: '+100.00',
     type: 'income',
+    category: 'recharge',
     channel: '微信支付',
+    description: '充值到账',
   },
   {
     id: 'wallet-002',
@@ -219,7 +335,9 @@ const DEFAULT_WALLET_RECORDS: WalletRecord[] = [
     time: '2026-04-18 22:02',
     amountText: '-46.80',
     type: 'expense',
+    category: 'consume',
     channel: '充电消费',
+    description: '订单结算',
   },
   {
     id: 'wallet-003',
@@ -227,7 +345,9 @@ const DEFAULT_WALLET_RECORDS: WalletRecord[] = [
     time: '2026-04-16 18:26',
     amountText: '-28.40',
     type: 'expense',
+    category: 'consume',
     channel: '充电消费',
+    description: '订单结算',
   },
 ]
 
@@ -245,9 +365,16 @@ const DEFAULT_ORDERS: OrderItem[] = [
     powerText: '31.8 kWh',
     amountText: '46.80',
     amountValue: 46.8,
+    payableText: '46.80',
+    discountText: '优惠抵扣 ￥6.00',
+    discountValue: 6,
     status: 'completed',
     statusText: '已完成',
+    paymentStatusText: '已支付',
+    invoiceStatusText: '可开票',
     canInvoice: true,
+    canChargeAgain: true,
+    abnormalReason: '',
   },
   {
     id: 'order-002',
@@ -262,9 +389,16 @@ const DEFAULT_ORDERS: OrderItem[] = [
     powerText: '22.4 kWh',
     amountText: '28.40',
     amountValue: 28.4,
+    payableText: '28.40',
+    discountText: '未使用优惠',
+    discountValue: 0,
     status: 'completed',
     statusText: '已完成',
+    paymentStatusText: '已支付',
+    invoiceStatusText: '待处理',
     canInvoice: true,
+    canChargeAgain: true,
+    abnormalReason: '',
   },
   {
     id: 'order-003',
@@ -279,9 +413,16 @@ const DEFAULT_ORDERS: OrderItem[] = [
     powerText: '8.6 kWh',
     amountText: '12.60',
     amountValue: 12.6,
+    payableText: '12.60',
+    discountText: '优惠抵扣 ￥2.00',
+    discountValue: 2,
     status: 'abnormal',
     statusText: '异常中断',
+    paymentStatusText: '已结算',
+    invoiceStatusText: '不可开票',
     canInvoice: false,
+    canChargeAgain: true,
+    abnormalReason: '连接中断，系统已按实际电量结算',
   },
 ]
 
@@ -290,6 +431,7 @@ const DEFAULT_INVOICES: InvoiceRecord[] = [
     id: 'invoice-001',
     orderId: 'order-001',
     orderNo: 'EC202604180001',
+    typeText: '电子普通发票',
     title: '成都智行科技有限公司',
     email: 'finance@echarge.com',
     amountText: '46.80',
@@ -298,11 +440,14 @@ const DEFAULT_INVOICES: InvoiceRecord[] = [
     applyTime: '2026-04-18 22:10',
     note: '用于企业差旅报销',
     attachmentName: '电子发票-EC202604180001.pdf',
+    progressText: '发票已开具，可在线查看附件',
+    rejectReason: '',
   },
   {
     id: 'invoice-002',
     orderId: 'order-002',
     orderNo: 'EC202604170001',
+    typeText: '电子普通发票',
     title: '个人',
     email: 'user@foxmail.com',
     amountText: '28.40',
@@ -311,6 +456,8 @@ const DEFAULT_INVOICES: InvoiceRecord[] = [
     applyTime: '2026-04-17 18:40',
     note: '请开具电子普通发票',
     attachmentName: '待生成',
+    progressText: '财务系统处理中，预计 1 个工作日内完成',
+    rejectReason: '',
   },
 ]
 
@@ -412,7 +559,7 @@ export function getStations() {
 }
 
 export function getRecommendedStations() {
-  return clone(STATIONS.slice(0, 3))
+  return clone([STATIONS[0], STATIONS[1], STATIONS[2]])
 }
 
 export function getStationById(id: string) {
@@ -480,7 +627,9 @@ export function rechargeWallet(amount: number) {
     time: formatDateTime(new Date()),
     amountText: `+${formatAmount(amount)}`,
     type: 'income',
+    category: 'recharge',
     channel: '微信支付',
+    description: '余额充值',
   })
   setStorageData(WALLET_RECORDS_KEY, records)
 
@@ -507,6 +656,10 @@ export function createChargingSession(stationId?: string, pileNo?: string) {
     currentPower: 38,
     currentFee: 6.8,
     energy: 5.4,
+    electricityFee: 4.6,
+    serviceFee: 2.8,
+    discountFee: 0.6,
+    priceNote: '当前按平时段电价计费，夜间时段可享服务费优惠。',
   }
 
   const orders = getOrders()
@@ -523,9 +676,16 @@ export function createChargingSession(stationId?: string, pileNo?: string) {
     powerText: '5.4 kWh',
     amountText: '6.80',
     amountValue: 6.8,
+    payableText: '6.80',
+    discountText: '优惠抵扣 ￥0.60',
+    discountValue: 0.6,
     status: 'charging',
     statusText: '充电中',
+    paymentStatusText: '待结算',
+    invoiceStatusText: '充电完成后可开票',
     canInvoice: false,
+    canChargeAgain: false,
+    abnormalReason: '',
   })
 
   saveOrders(orders)
@@ -544,6 +704,8 @@ export function updateChargingSessionSnapshot(session: ChargingSession) {
           powerText: `${session.energy.toFixed(1)} kWh`,
           amountText: formatAmount(session.currentFee),
           amountValue: session.currentFee,
+          payableText: formatAmount(session.currentFee),
+          discountText: `优惠抵扣 ￥${session.discountFee.toFixed(2)}`,
         }
       : item
   )
@@ -565,9 +727,16 @@ export function completeChargingSession(session: ChargingSession) {
     powerText: `${session.energy.toFixed(1)} kWh`,
     amountText: formatAmount(session.currentFee),
     amountValue: session.currentFee,
+    payableText: formatAmount(session.currentFee),
+    discountText: `优惠抵扣 ￥${session.discountFee.toFixed(2)}`,
+    discountValue: session.discountFee,
     status: 'completed',
     statusText: '已完成',
+    paymentStatusText: '已支付',
+    invoiceStatusText: '可开票',
     canInvoice: true,
+    canChargeAgain: true,
+    abnormalReason: '',
   }
 
   const orders = getOrders().map(item => (item.id === session.orderId ? completedOrder : item))
@@ -583,7 +752,9 @@ export function completeChargingSession(session: ChargingSession) {
     time: completedAt,
     amountText: `-${formatAmount(session.currentFee)}`,
     type: 'expense',
+    category: 'consume',
     channel: '充电消费',
+    description: '订单结算',
   })
   setStorageData(WALLET_RECORDS_KEY, records)
   clearChargingSession()
@@ -611,6 +782,7 @@ export function createInvoiceApplication(options: {
     id: buildId('invoice'),
     orderId: order.id,
     orderNo: order.orderNo,
+    typeText: '电子普通发票',
     title: options.title,
     email: options.email,
     amountText: order.amountText,
@@ -619,6 +791,8 @@ export function createInvoiceApplication(options: {
     applyTime: formatDateTime(new Date()),
     note: options.note || '电子普通发票',
     attachmentName: '待生成',
+    progressText: '申请已提交，财务系统审核中',
+    rejectReason: '',
   }
 
   const invoices = getInvoices()

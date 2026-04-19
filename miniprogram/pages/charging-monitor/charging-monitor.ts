@@ -23,9 +23,14 @@ function buildDisplayState(session: ChargingSession) {
     durationMinutes: session.durationMinutes,
     durationText: formatDuration(session.durationMinutes),
     batteryText: `${session.currentBattery}%`,
+    progressPercent: `${Math.min(session.currentBattery, 96)}%`,
     powerText: `${session.currentPower.toFixed(0)} kW`,
     feeText: session.currentFee.toFixed(2),
     energyText: `${session.energy.toFixed(1)} kWh`,
+    electricityFeeText: session.electricityFee.toFixed(2),
+    serviceFeeText: session.serviceFee.toFixed(2),
+    discountFeeText: session.discountFee.toFixed(2),
+    priceNote: session.priceNote,
   }
 }
 
@@ -41,9 +46,14 @@ Page({
     durationMinutes: 0,
     durationText: '0 分钟',
     batteryText: '0%',
+    progressPercent: '0%',
     powerText: '0 kW',
     feeText: '0.00',
     energyText: '0.0 kWh',
+    electricityFeeText: '0.00',
+    serviceFeeText: '0.00',
+    discountFeeText: '0.00',
+    priceNote: '',
     statusText: '充电中',
   },
 
@@ -71,6 +81,12 @@ Page({
     }
 
     monitorTimer = setInterval(() => {
+      const energy = Number((Number(this.data.energyText.replace(' kWh', '')) + 1.1).toFixed(1))
+      const electricityFee = Number((energy * 0.78).toFixed(2))
+      const serviceFee = Number((energy * 0.48).toFixed(2))
+      const discountFee = 0.8
+      const currentFee = Number((electricityFee + serviceFee - discountFee).toFixed(2))
+
       const nextSession: ChargingSession = {
         orderId: this.data.orderId,
         orderNo: this.data.orderNo,
@@ -80,10 +96,14 @@ Page({
         gunNo: this.data.gunNo,
         startedAt: this.data.startedAt,
         durationMinutes: this.data.durationMinutes + 1,
-        currentBattery: Math.min(Number(this.data.batteryText.replace('%', '')) + 2, 95),
-        currentPower: Math.min(Number(this.data.powerText.replace(' kW', '')) + 1.2, 52),
-        currentFee: Number((Number(this.data.feeText) + 1.36).toFixed(2)),
-        energy: Number((Number(this.data.energyText.replace(' kWh', '')) + 1.1).toFixed(1)),
+        currentBattery: Math.min(Number(this.data.batteryText.replace('%', '')) + 2, 96),
+        currentPower: Math.max(Math.min(Number(this.data.powerText.replace(' kW', '')) + 1.4, 52), 36),
+        currentFee,
+        energy,
+        electricityFee,
+        serviceFee,
+        discountFee,
+        priceNote: '当前按平时段电价计费，夜间时段可享服务费优惠。',
       }
 
       updateChargingSessionSnapshot(nextSession)
@@ -105,6 +125,10 @@ Page({
       currentPower: Number(this.data.powerText.replace(' kW', '')),
       currentFee: Number(this.data.feeText),
       energy: Number(this.data.energyText.replace(' kWh', '')),
+      electricityFee: Number(this.data.electricityFeeText),
+      serviceFee: Number(this.data.serviceFeeText),
+      discountFee: Number(this.data.discountFeeText),
+      priceNote: this.data.priceNote,
     }
 
     const result = completeChargingSession(currentSession)
