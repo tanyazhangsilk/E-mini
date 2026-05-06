@@ -19,8 +19,20 @@
       <text class="value">{{order.discountText}}</text>
     </view>
     <view class="settlement-row">
+      <text class="label">电费</text>
+      <text class="value">￥{{order.electricityFeeText}}</text>
+    </view>
+    <view class="settlement-row">
+      <text class="label">服务费</text>
+      <text class="value">￥{{order.serviceFeeText}}</text>
+    </view>
+    <view class="settlement-row">
       <text class="label">发票状态</text>
       <text class="value">{{order.invoiceStatusText}}</text>
+    </view>
+    <view class="settlement-row">
+      <text class="label">订单状态</text>
+      <text class="value">{{order.statusText}}</text>
     </view>
   </view>
 
@@ -48,6 +60,10 @@
     <view class="detail-row">
       <text class="label">充电电量</text>
       <text class="value">{{order.powerText}}</text>
+    </view>
+    <view class="detail-row">
+      <text class="label">总金额</text>
+      <text class="value">￥{{order.totalAmountText}}</text>
     </view>
   </view>
 

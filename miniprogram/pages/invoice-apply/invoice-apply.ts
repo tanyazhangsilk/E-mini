@@ -1,4 +1,11 @@
 import {
+  ApplyInvoicePayload,
+  applyInvoice,
+  getInvoiceRecords,
+  getOrderDetail,
+  withApiFallback,
+} from '../../services/api'
+import {
   OrderItem,
   createInvoiceApplication,
   findInvoiceByOrderId,
@@ -13,22 +20,31 @@ Page({
     title: '',
     email: '',
     note: '',
-    invoiceType: '电子普通发票',
-    invoiceTypes: ['电子普通发票', '个人普通发票'],
+    invoiceType: 'E-Invoice',
+    invoiceTypes: ['E-Invoice', 'Personal Invoice'],
     notices: [
-      '发票金额以订单实付金额为准，优惠抵扣部分不再重复开具。',
-      '提交申请后可在发票记录页查看处理进度与附件状态。',
+      'Invoice amount follows the final paid order amount.',
+      'You can review progress later on the invoice records page.',
     ],
   },
 
-  onLoad(options: Record<string, string | undefined>) {
-    const order = getOrderById(options.orderId || '')
+  async onLoad(options: Record<string, string | undefined>) {
+    const order = await withApiFallback(
+      'invoice-apply:getOrderDetail',
+      async () => {
+        if (!options.orderId) {
+          throw new Error('missing order id')
+        }
+        return getOrderDetail(options.orderId)
+      },
+      () => getOrderById(options.orderId || '')
+    )
     const email = app.globalData.echargeUser?.email || 'user@echarge.com'
     this.setData({
       order,
-      title: '个人',
+      title: 'Individual',
       email,
-      note: '电子普通发票',
+      note: 'E-Invoice',
     })
   },
 
@@ -51,36 +67,57 @@ Page({
     this.setData({ note: e.detail.value })
   },
 
-  submitInvoice() {
+  async submitInvoice() {
     const order = this.data.order
     const title = this.data.title.trim()
     const email = this.data.email.trim()
 
     if (!order) {
-      wx.showToast({ title: '未找到关联订单', icon: 'none' })
+      wx.showToast({ title: 'Order not found', icon: 'none' })
       return
     }
 
     if (!title || !email) {
-      wx.showToast({ title: '请填写开票信息', icon: 'none' })
+      wx.showToast({ title: 'Fill invoice info', icon: 'none' })
       return
     }
 
-    const existing = findInvoiceByOrderId(order.id)
+    const existing = await withApiFallback(
+      'invoice-apply:getInvoiceRecords',
+      async () => {
+        const records = await getInvoiceRecords()
+        return records.find(item => item.orderId === order.id) || null
+      },
+      () => findInvoiceByOrderId(order.id)
+    )
+
     if (existing) {
-      wx.showToast({ title: '该订单已提交开票申请', icon: 'none' })
+      wx.showToast({ title: 'Invoice already applied', icon: 'none' })
       wx.navigateTo({ url: '/pages/invoice-records/invoice-records' })
       return
     }
 
-    createInvoiceApplication({
-      orderId: order.id,
+    const payload: ApplyInvoicePayload = {
+      order_id: order.id,
       title,
       email,
-      note: `${this.data.invoiceType} · ${this.data.note.trim()}`,
-    })
+      note: `${this.data.invoiceType} - ${this.data.note.trim()}`,
+      type: this.data.invoiceType,
+    }
 
-    wx.showToast({ title: '发票申请已提交', icon: 'success' })
+    try {
+      await applyInvoice(payload)
+    } catch (error) {
+      console.warn('[invoice-apply] applyInvoice failed, fallback to mock record', error)
+      createInvoiceApplication({
+        orderId: order.id,
+        title,
+        email,
+        note: payload.note,
+      })
+    }
+
+    wx.showToast({ title: 'Invoice submitted', icon: 'success' })
     setTimeout(() => {
       wx.navigateTo({ url: '/pages/invoice-records/invoice-records' })
     }, 900)

@@ -64,7 +64,7 @@
     </view>
 
     <view class="order-actions" wx:if="{{item.status === 'charging'}}">
-      <view class="order-action-btn primary" catchtap="openCharging" data-station-id="{{item.stationId}}" data-pile-no="{{item.pileNo}}">继续查看</view>
+      <view class="order-action-btn primary" catchtap="openCharging" data-id="{{item.id}}">继续查看</view>
     </view>
   </view>
 </view>

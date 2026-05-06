@@ -1,3 +1,4 @@
+import { getInvoiceRecords, withApiFallback } from '../../services/api'
 import { InvoiceRecord, getInvoices } from '../../services/mock'
 
 Page({
@@ -5,17 +6,22 @@ Page({
     records: [] as InvoiceRecord[],
   },
 
-  onShow() {
+  async onShow() {
+    const records = await withApiFallback(
+      'invoice-records:getInvoiceRecords',
+      () => getInvoiceRecords(),
+      () => getInvoices()
+    )
     this.setData({
-      records: getInvoices(),
+      records,
     })
   },
 
   viewAttachment(e: WechatMiniprogram.CustomEvent) {
     const { name, status } = e.currentTarget.dataset as { name: string; status: string }
     wx.showModal({
-      title: '发票文件信息',
-      content: `${status}\n文件：${name}`,
+      title: 'Invoice file',
+      content: `${status}\nFile: ${name}`,
       showCancel: false,
     })
   },

@@ -1,3 +1,4 @@
+import { getWalletSummary, getWalletTransactions, withApiFallback } from '../../services/api'
 import { WalletRecord, getWalletRecords } from '../../services/mock'
 
 const app = getApp<IAppOption>()
@@ -16,16 +17,16 @@ Page({
     balance: '0.00',
     currentFilter: 'all' as FilterKey,
     filters: [
-      { key: 'all', label: '全部' },
-      { key: 'recharge', label: '充值' },
-      { key: 'consume', label: '消费' },
+      { key: 'all', label: 'All' },
+      { key: 'recharge', label: 'Recharge' },
+      { key: 'consume', label: 'Consume' },
     ],
     records: [] as WalletRecord[],
     displayRecords: [] as WalletRecord[],
   },
 
   onShow() {
-    this.refreshPage()
+    void this.refreshPage()
     if (typeof this.getTabBar === 'function') {
       const tabBar = this.getTabBar()
       if (tabBar) {
@@ -34,10 +35,25 @@ Page({
     }
   },
 
-  refreshPage() {
-    const records = getWalletRecords()
+  async refreshPage() {
+    const summary = await withApiFallback(
+      'wallet:getWalletSummary',
+      () => getWalletSummary(),
+      () => ({
+        balance: app.globalData.balance,
+        balanceText: app.globalData.balance.toFixed(2),
+        couponCount: 0,
+      })
+    )
+    const records = await withApiFallback(
+      'wallet:getWalletTransactions',
+      () => getWalletTransactions(),
+      () => getWalletRecords()
+    )
+
+    app.globalData.balance = summary.balance
     this.setData({
-      balance: app.globalData.balance.toFixed(2),
+      balance: summary.balanceText,
       records,
       displayRecords: filterRecords(records, this.data.currentFilter),
     })
@@ -48,8 +64,8 @@ Page({
   },
 
   onRefresh() {
-    this.refreshPage()
-    wx.showToast({ title: '账户信息已更新', icon: 'none' })
+    void this.refreshPage()
+    wx.showToast({ title: 'Wallet updated', icon: 'none' })
   },
 
   switchFilter(e: WechatMiniprogram.CustomEvent) {
@@ -62,8 +78,8 @@ Page({
 
   openCoupons() {
     wx.showModal({
-      title: '优惠券中心',
-      content: '当前账户可用优惠券 3 张，支持在充电结算页自动抵扣。',
+      title: 'Coupons',
+      content: 'Coupon center is still using local demo content.',
       showCancel: false,
     })
   },

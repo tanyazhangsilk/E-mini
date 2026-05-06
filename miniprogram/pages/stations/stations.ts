@@ -1,4 +1,5 @@
-import { StationItem, getStations } from '../../services/mock'
+import { getStations, withApiFallback } from '../../services/api'
+import { StationItem, getStations as getMockStations } from '../../services/mock'
 
 type SortKey = 'distance' | 'price' | 'idle' | 'fast'
 
@@ -46,8 +47,12 @@ Page({
     empty: false,
   },
 
-  onLoad() {
-    const stations = getStations()
+  async onLoad() {
+    const stations = await withApiFallback(
+      'stations:getStations',
+      () => getStations(),
+      () => getMockStations()
+    )
     this.setData({
       loading: false,
       stations,

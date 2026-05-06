@@ -87,7 +87,7 @@
         <text class="section-head__title">充电终端</text>
         <text class="section-head__meta">实时状态</text>
       </view>
-      <view class="pile-card" wx:for="{{station.piles}}" wx:key="id">
+      <view class="pile-card" wx:for="{{station.piles}}" wx:key="id" data-pile-no="{{item.id}}" data-sn-code="{{item.id}}" data-status="{{item.status}}" bindtap="onPileTap">
         <view class="pile-main">
           <text class="pile-name">{{item.label}}</text>
           <text class="pile-meta">{{item.id}} · {{item.power}} · {{item.connector}}</text>

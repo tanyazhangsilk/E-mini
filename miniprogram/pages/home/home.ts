@@ -6,26 +6,39 @@ import {
   getPromotions,
   getRecommendedStations,
 } from '../../services/mock'
+import {
+  getOrders,
+  getRecommendStations,
+  getStations,
+  getWalletSummary,
+  withApiFallback,
+} from '../../services/api'
 
 const app = getApp<IAppOption>()
 
+function sortByLatest(left: OrderItem, right: OrderItem) {
+  const leftTime = new Date((left.endTime || left.startTime || '').replace(/-/g, '/')).getTime()
+  const rightTime = new Date((right.endTime || right.startTime || '').replace(/-/g, '/')).getTime()
+  return rightTime - leftTime
+}
+
 Page({
   data: {
-    nickname: '车主用户',
+    nickname: 'User',
     balance: '0.00',
     stations: [] as StationItem[],
     promotions: [] as PromotionCard[],
     recentOrder: null as OrderItem | null,
     quickActions: [
-      { id: 'scan', title: '扫码充电', desc: '快速连接充电设备', icon: '充', type: 'scan' },
-      { id: 'stations', title: '附近电站', desc: '查看周边优质站点', icon: '站', type: 'stations' },
-      { id: 'orders', title: '我的订单', desc: '管理充电订单记录', icon: '单', type: 'orders' },
-      { id: 'wallet', title: '我的钱包', desc: '查看余额与交易明细', icon: '钱', type: 'wallet' },
+      { id: 'scan', title: 'Scan', desc: 'Start charging quickly', icon: 'S', type: 'scan' },
+      { id: 'stations', title: 'Stations', desc: 'Browse nearby stations', icon: 'T', type: 'stations' },
+      { id: 'orders', title: 'Orders', desc: 'View charging orders', icon: 'O', type: 'orders' },
+      { id: 'wallet', title: 'Wallet', desc: 'Balance and transactions', icon: 'W', type: 'wallet' },
     ],
   },
 
   onShow() {
-    this.refreshPage()
+    void this.refreshPage()
     if (typeof this.getTabBar === 'function') {
       const tabBar = this.getTabBar()
       if (tabBar) {
@@ -34,13 +47,48 @@ Page({
     }
   },
 
-  refreshPage() {
+  async refreshPage() {
+    const nickname = app.globalData.echargeUser?.nickname || 'User'
+    const promotions = getPromotions()
+
+    const walletSummary = await withApiFallback(
+      'home:getWalletSummary',
+      () => getWalletSummary(),
+      () => ({
+        balance: app.globalData.balance,
+        balanceText: app.globalData.balance.toFixed(2),
+        couponCount: 0,
+      })
+    )
+    app.globalData.balance = walletSummary.balance
+
+    const stations = await withApiFallback(
+      'home:getRecommendStations',
+      async () => {
+        const recommendStations = await getRecommendStations()
+        if (recommendStations.length) {
+          return recommendStations
+        }
+        return getStations()
+      },
+      () => getRecommendedStations()
+    )
+
+    const recentOrder = await withApiFallback(
+      'home:getOrders',
+      async () => {
+        const orders = await getOrders()
+        return orders.filter(item => item.status === 'completed').sort(sortByLatest)[0] || null
+      },
+      () => getLatestCompletedOrder()
+    )
+
     this.setData({
-      nickname: app.globalData.echargeUser?.nickname || '车主用户',
-      balance: app.globalData.balance.toFixed(2),
-      stations: getRecommendedStations(),
-      promotions: getPromotions(),
-      recentOrder: getLatestCompletedOrder(),
+      nickname,
+      balance: walletSummary.balanceText,
+      stations,
+      promotions,
+      recentOrder,
     })
   },
 
@@ -80,13 +128,13 @@ Page({
 
   openCoupons() {
     wx.showModal({
-      title: '优惠中心',
-      content: '当前账户可用优惠券 3 张，支持在充电结算时自动抵扣。',
+      title: 'Coupons',
+      content: 'Coupon center is still using local demo content.',
       showCancel: false,
     })
   },
 
   onPromotionTap() {
-    wx.showToast({ title: '活动详情已同步', icon: 'none' })
+    wx.showToast({ title: 'Promotion synced', icon: 'none' })
   },
 })

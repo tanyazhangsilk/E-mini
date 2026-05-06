@@ -1,9 +1,18 @@
 import {
+  buildChargingSessionFromOrder,
+  finishOrder,
+  getOrderDetail,
+  getWalletSummary,
+  withApiFallback,
+} from '../../services/api'
+import {
   ChargingSession,
+  clearChargingSession,
   completeChargingSession,
   createChargingSession,
   formatDuration,
   getChargingSession,
+  getOrderById,
   updateChargingSessionSnapshot,
 } from '../../services/mock'
 import { getStoredBalance } from '../../utils/storage'
@@ -44,7 +53,7 @@ Page({
     gunNo: '',
     startedAt: '',
     durationMinutes: 0,
-    durationText: '0 分钟',
+    durationText: '0 min',
     batteryText: '0%',
     progressPercent: '0%',
     powerText: '0 kW',
@@ -54,16 +63,53 @@ Page({
     serviceFeeText: '0.00',
     discountFeeText: '0.00',
     priceNote: '',
-    statusText: '充电中',
+    statusText: 'Charging',
   },
 
-  onLoad(options: Record<string, string | undefined>) {
+  async onLoad(options: Record<string, string | undefined>) {
+    const orderId = options.orderId || ''
     const currentSession = getChargingSession()
-    const matchedSession =
-      currentSession && (!options.orderId || currentSession.orderId === options.orderId)
-        ? currentSession
-        : createChargingSession()
+    const matchedSession = await withApiFallback(
+      'charging-monitor:getOrderDetail',
+      async () => {
+        if (!orderId) {
+          throw new Error('missing order id')
+        }
+        const order = await getOrderDetail(orderId)
+        return buildChargingSessionFromOrder(order)
+      },
+      () => {
+        if (currentSession && (!orderId || currentSession.orderId === orderId)) {
+          return currentSession
+        }
 
+        const fallbackOrder = orderId ? getOrderById(orderId) : null
+        if (fallbackOrder) {
+          return {
+            orderId: fallbackOrder.id,
+            orderNo: fallbackOrder.orderNo,
+            stationId: fallbackOrder.stationId,
+            stationName: fallbackOrder.stationName,
+            pileNo: fallbackOrder.pileNo,
+            gunNo: fallbackOrder.gunNo,
+            startedAt: fallbackOrder.startTime,
+            durationMinutes: 0,
+            currentBattery: 32,
+            currentPower: 38,
+            currentFee: fallbackOrder.amountValue,
+            energy: Number(fallbackOrder.powerText.replace(/[^\d.]/g, '')) || 0,
+            electricityFee: 0,
+            serviceFee: 0,
+            discountFee: fallbackOrder.discountValue,
+            priceNote: 'Fallback demo mode. Backend order remains source of truth.',
+          } as ChargingSession
+        }
+
+        return createChargingSession()
+      }
+    )
+
+    updateChargingSessionSnapshot(matchedSession)
     this.setData(buildDisplayState(matchedSession))
     this.startMonitor()
   },
@@ -103,7 +149,7 @@ Page({
         electricityFee,
         serviceFee,
         discountFee,
-        priceNote: '当前按平时段电价计费，夜间时段可享服务费优惠。',
+        priceNote: 'Realtime values are simulated locally for demo continuity.',
       }
 
       updateChargingSessionSnapshot(nextSession)
@@ -111,7 +157,7 @@ Page({
     }, 1000)
   },
 
-  endCharging() {
+  async endCharging() {
     const currentSession: ChargingSession = {
       orderId: this.data.orderId,
       orderNo: this.data.orderNo,
@@ -131,6 +177,31 @@ Page({
       priceNote: this.data.priceNote,
     }
 
+    wx.showLoading({ title: 'Ending' })
+
+    try {
+      const result = await finishOrder(currentSession.orderId)
+      clearChargingSession()
+
+      try {
+        const walletSummary = await getWalletSummary()
+        app.globalData.balance = walletSummary.balance
+      } catch (error) {
+        console.warn('[charging-monitor] refresh wallet summary failed', error)
+      }
+
+      if (monitorTimer) {
+        clearInterval(monitorTimer)
+        monitorTimer = 0
+      }
+
+      wx.hideLoading()
+      wx.navigateTo({ url: `/pages/charging-result/charging-result?orderId=${result.id}` })
+      return
+    } catch (error) {
+      console.warn('[charging-monitor] finishOrder failed, fallback to mock completion', error)
+    }
+
     const result = completeChargingSession(currentSession)
     app.globalData.balance = getStoredBalance()
 
@@ -139,6 +210,7 @@ Page({
       monitorTimer = 0
     }
 
+    wx.hideLoading()
     wx.navigateTo({ url: `/pages/charging-result/charging-result?orderId=${result.id}` })
   },
 })

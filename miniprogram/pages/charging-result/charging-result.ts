@@ -1,16 +1,64 @@
-import { OrderItem, findInvoiceByOrderId, getLatestCompletedOrder, getOrderById } from '../../services/mock'
+import {
+  OrderDetailItem,
+  getInvoiceRecords,
+  getOrderDetail,
+  withApiFallback,
+} from '../../services/api'
+import { findInvoiceByOrderId, getLatestCompletedOrder, getOrderById } from '../../services/mock'
 
 Page({
   data: {
-    order: null as OrderItem | null,
+    order: null as OrderDetailItem | null,
     invoiceReady: false,
   },
 
-  onLoad(options: Record<string, string | undefined>) {
-    const order = options.orderId ? getOrderById(options.orderId) : getLatestCompletedOrder()
+  async onLoad(options: Record<string, string | undefined>) {
+    const order = await withApiFallback(
+      'charging-result:getOrderDetail',
+      async () => {
+        if (!options.orderId) {
+          throw new Error('missing order id')
+        }
+        return getOrderDetail(options.orderId)
+      },
+      () => {
+        const fallbackOrder = options.orderId ? getOrderById(options.orderId) : getLatestCompletedOrder()
+        if (!fallbackOrder) {
+          return null
+        }
+
+        return {
+          ...fallbackOrder,
+          energyValue: Number(fallbackOrder.powerText.replace(/[^\d.]/g, '')) || 0,
+          electricityFeeValue: 0,
+          serviceFeeValue: 0,
+          totalAmountValue: fallbackOrder.amountValue,
+          discountFeeValue: fallbackOrder.discountValue,
+          electricityFeeText: '0.00',
+          serviceFeeText: '0.00',
+          totalAmountText: fallbackOrder.payableText,
+          paymentStatus: fallbackOrder.paymentStatusText,
+          orderStatus: fallbackOrder.status,
+          batteryPercent: 0,
+          currentPowerValue: 0,
+        } as OrderDetailItem
+      }
+    )
+
+    const invoiceReady = order
+      ? await withApiFallback(
+          'charging-result:getInvoiceRecords',
+          async () => {
+            const records = await getInvoiceRecords()
+            return records.some(item => item.orderId === order.id)
+          },
+          () => Boolean(findInvoiceByOrderId(order.id))
+        )
+      : false
+
     this.setData({
       order,
-      invoiceReady: !!(order && findInvoiceByOrderId(order.id)),
+      invoiceReady,
     })
   },
 
@@ -44,6 +92,7 @@ Page({
     wx.setStorageSync('echarge_scan_context', {
       stationId: order.stationId,
       pileNo: order.pileNo,
+      snCode: order.pileNo,
     })
     wx.switchTab({ url: '/pages/scan/scan' })
   },
